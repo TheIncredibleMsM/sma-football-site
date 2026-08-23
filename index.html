@@ -1,0 +1,1261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#4B176B">
+<title>San Marcos Academy Six-Man Football</title>
+<meta name="description" content="New to six-man football? Learn the rules, meet the Bears, find the next game, and figure out what just happened on the field.">
+
+<!--
+================================================================================
+  SAN MARCOS ACADEMY SIX-MAN FOOTBALL  —  GAME-NIGHT SITE
+  Single self-contained file. No external requests. Works on weak cell service.
+
+  TO UPDATE CONTENT, EDIT ONLY THE "DATA BLOCK" NEAR THE TOP OF THE <script>
+  TAG AT THE BOTTOM OF THIS FILE. Everything marked  ### PLACEHOLDER ###  needs
+  real, school-approved information before this goes live.
+================================================================================
+-->
+
+<style>
+/* ---------------------------------------------------------------------------
+   COLOR. Light is the default because it degrades better in direct sunlight.
+   Dark mode follows the phone's own setting via prefers-color-scheme, so a
+   spectator gets light at a 2pm game and dark at a Friday night kickoff.
+   Every colour lives in a variable here; nothing below hard-codes a hex.
+   --------------------------------------------------------------------------- */
+:root{
+  color-scheme:light;
+  --purple:#4B176B;
+  --purple-dark:#33104A;
+  --purple-tint:#F3EDF7;
+  --green:#0F6B3A;
+  --green-tint:#E7F3EC;
+  --ink:#17121B;
+  --ink-soft:#4A4351;
+  --paper:#FFFFFF;
+  --card:#FFFFFF;
+  --line:#9F8CAF;
+  --focus:#0F6B3A;
+
+  --hdr-bg:#4B176B;
+  --hdr-fg:#FFFFFF;
+  --hdr-sub:#EBDDF5;
+  --hdr-rule:#0F6B3A;
+
+  --btn-bg:#0F6B3A;
+  --btn-fg:#FFFFFF;
+  --btn-bg-hover:#0B5730;
+
+  --badge-home-bg:#E7F3EC; --badge-home-fg:#0B4F2B; --badge-home-bd:#0F6B3A;
+  --badge-away-bg:#FFFFFF; --badge-away-fg:#33104A; --badge-away-bd:#4B176B;
+  --badge-flat-bg:#EDEAF0; --badge-flat-fg:#3A3340; --badge-flat-bd:#7A7181;
+  --badge-off-bg:#FBEAEA;  --badge-off-fg:#7A1616;  --badge-off-bd:#A32222;
+  --badge-occ-bg:#4B176B;  --badge-occ-fg:#FFFFFF;  --badge-occ-bd:#33104A;
+
+  --tag-bg:#E7F3EC; --tag-fg:#0B4F2B; --tag-bd:#0F6B3A;
+  --kicker:#33104A;
+
+  --radius:14px;
+  --tap:56px;
+}
+
+@media (prefers-color-scheme:dark){
+  :root{
+    color-scheme:dark;
+    /* Near-black rather than #000, off-white rather than #FFF. Pure black and
+       pure white maximise halation — the bloom that smears light-on-dark text
+       for readers with astigmatism, worst at night with dilated pupils. */
+    --purple:#C9A2E8;
+    --purple-dark:#E3CDF4;
+    --purple-tint:#251B34;
+    --green:#5CC98D;
+    --green-tint:#122A1E;
+    --ink:#EFEBF4;
+    --ink-soft:#B7AFC4;
+    --paper:#14111B;
+    --card:#1B1724;
+    --line:#6C6082;
+    --focus:#7FD8A5;
+
+    --hdr-bg:#2B0F41;
+    --hdr-fg:#FFFFFF;
+    --hdr-sub:#D8C4EA;
+    --hdr-rule:#5CC98D;
+
+    --btn-bg:#5CC98D;
+    --btn-fg:#0B2015;
+    --btn-bg-hover:#7BD9A5;
+
+    --badge-home-bg:#122A1E; --badge-home-fg:#7FDCA8; --badge-home-bd:#5CC98D;
+    --badge-away-bg:#251B34; --badge-away-fg:#D9BEF0; --badge-away-bd:#C9A2E8;
+    --badge-flat-bg:#272231; --badge-flat-fg:#C3BBCF; --badge-flat-bd:#6D6480;
+    --badge-off-bg:#33191A;  --badge-off-fg:#F0A9A9;  --badge-off-bd:#C56A6A;
+    --badge-occ-bg:#C9A2E8;  --badge-occ-fg:#1E0F2B;  --badge-occ-bd:#E3CDF4;
+
+    --tag-bg:#122A1E; --tag-fg:#7FDCA8; --tag-bd:#5CC98D;
+    --kicker:#E3CDF4;
+  }
+}
+
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;
+  background:var(--paper);
+  color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  font-size:18px;
+  line-height:1.55;
+}
+img{max-width:100%;height:auto}
+
+/* ---------- Focus + skip link (keyboard access) ---------- */
+:focus-visible{outline:4px solid var(--focus);outline-offset:2px;border-radius:6px}
+.skip{
+  position:absolute;left:-9999px;top:0;z-index:100;
+  background:var(--ink);color:var(--paper);padding:14px 18px;font-weight:700;
+}
+.skip:focus{left:8px;top:8px}
+
+/* ---------- Header ---------- */
+header.site{
+  background:var(--hdr-bg);
+  color:var(--hdr-fg);
+  padding:env(safe-area-inset-top) 0 0;
+  position:sticky;top:0;z-index:20;
+  border-bottom:4px solid var(--hdr-rule);
+}
+.bar{
+  display:flex;align-items:center;gap:12px;
+  padding:10px 16px;max-width:760px;margin:0 auto;
+}
+.bar .mark{flex:0 0 auto;display:flex;align-items:center}
+.logo-chip{display:block;width:48px;height:auto}
+.hero{text-align:center;margin:0 0 10px}
+.hero img{width:150px;height:auto}
+.bar .titles{min-width:0}
+.bar .school{
+  font-size:15px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;
+  margin:0;line-height:1.2;
+}
+.bar .sub{font-size:13px;margin:0;color:var(--hdr-sub);line-height:1.3}
+.backbtn{
+  margin-left:auto;flex:0 0 auto;
+  display:none;align-items:center;gap:6px;
+  min-height:44px;padding:8px 14px;
+  background:var(--hdr-fg);color:var(--hdr-bg);
+  border:none;border-radius:999px;
+  font:inherit;font-size:16px;font-weight:700;cursor:pointer;
+}
+.backbtn.show{display:inline-flex}
+
+/* ---------- Layout ---------- */
+main{max-width:760px;margin:0 auto;padding:20px 16px 64px}
+h1{font-size:28px;line-height:1.2;margin:0 0 6px}
+h2{font-size:22px;line-height:1.25;margin:32px 0 10px}
+h3{font-size:19px;line-height:1.3;margin:0 0 4px}
+p{margin:0 0 14px}
+.lede{font-size:19px;color:var(--ink-soft);margin-bottom:22px}
+.small{font-size:15px;color:var(--ink-soft)}
+.page{display:none}
+.page.active{display:block}
+
+/* ---------- Big nav buttons ---------- */
+.menu{display:grid;gap:12px;margin:22px 0}
+.menu a{
+  display:flex;align-items:center;gap:14px;
+  min-height:72px;padding:14px 16px;
+  background:var(--card);color:var(--ink);
+  border:3px solid var(--purple);border-radius:var(--radius);
+  text-decoration:none;font-weight:700;font-size:20px;
+}
+.menu a .why{display:block;font-weight:400;font-size:15px;color:var(--ink-soft);line-height:1.35}
+.menu a:hover{background:var(--purple-tint)}
+.menu .ico{flex:0 0 34px;color:var(--purple)}
+
+/* ---------- Buttons ---------- */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  min-height:var(--tap);padding:12px 22px;
+  border-radius:999px;border:3px solid transparent;
+  font:inherit;font-size:19px;font-weight:700;text-decoration:none;cursor:pointer;
+}
+.btn-primary{background:var(--btn-bg);color:var(--btn-fg)}
+.btn-primary:hover{background:var(--btn-bg-hover)}
+.btn-secondary{background:var(--card);color:var(--purple-dark);border-color:var(--purple)}
+.btn-secondary:hover{background:var(--purple-tint)}
+.btn-block{display:flex;width:100%}
+.btnrow{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+
+/* ---------- Cards ---------- */
+.card{
+  border:2px solid var(--line);border-radius:var(--radius);
+  padding:16px;margin:0 0 14px;background:var(--card);
+}
+.card.accent{border-color:var(--purple);border-width:3px}
+.next{background:var(--purple-tint);border:3px solid var(--purple);border-radius:var(--radius);padding:16px;margin-bottom:6px}
+.next .kicker{color:var(--kicker)}
+.next .opp{font-size:24px;font-weight:800;margin:0 0 2px;line-height:1.2}
+.next .when{margin:0 0 10px;font-size:17px}
+
+/* ---------- Badges (never color alone: always carry text) ---------- */
+.badge{
+  display:inline-block;padding:3px 10px;border-radius:999px;
+  font-size:13px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;
+  border:2px solid;
+}
+.badge-home{background:var(--badge-home-bg);color:var(--badge-home-fg);border-color:var(--badge-home-bd)}
+.badge-away{background:var(--badge-away-bg);color:var(--badge-away-fg);border-color:var(--badge-away-bd)}
+.badge-final{background:var(--badge-flat-bg);color:var(--badge-flat-fg);border-color:var(--badge-flat-bd)}
+.badge-off{background:var(--badge-off-bg);color:var(--badge-off-fg);border-color:var(--badge-off-bd)}
+.badge-occ{background:var(--badge-occ-bg);color:var(--badge-occ-fg);border-color:var(--badge-occ-bd)}
+
+/* ---------- Forms ---------- */
+label{display:block;font-weight:700;font-size:16px;margin:0 0 6px}
+input[type=text],input[type=search],select{
+  width:100%;min-height:var(--tap);
+  padding:10px 14px;font:inherit;font-size:19px;
+  border:3px solid var(--purple);border-radius:12px;background:var(--card);color:var(--ink);
+}
+input[type=search]{-webkit-appearance:none;appearance:none}
+.numsearch input{font-size:30px;font-weight:800;text-align:center;letter-spacing:.08em}
+.filters{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
+.field{margin:0 0 14px}
+.count{font-weight:700;margin:6px 0 14px}
+
+/* ---------- Player cards ---------- */
+.players{display:grid;gap:12px}
+.player{
+  display:grid;grid-template-columns:74px 1fr;gap:14px;
+  border:2px solid var(--line);border-radius:var(--radius);padding:14px;
+}
+.avatar{
+  width:74px;height:74px;border-radius:12px;
+  background:var(--purple);color:var(--paper);
+  display:flex;align-items:center;justify-content:center;
+  font-size:26px;font-weight:800;overflow:hidden;
+}
+.avatar img{width:100%;height:100%;object-fit:cover}
+.jersey{
+  display:inline-block;background:var(--purple);color:var(--paper);
+  border-radius:8px;padding:2px 10px;font-weight:800;font-size:17px;margin-right:8px;
+}
+.player h3{display:flex;align-items:center;flex-wrap:wrap;gap:4px;margin-bottom:6px}
+.rowlist{margin:0;padding:0;list-style:none;font-size:16px}
+.rowlist li{margin:0 0 3px}
+.rowlist .k{font-weight:700}
+.rowlist .pending{color:var(--ink-soft);font-style:italic}
+.tag{
+  display:inline-block;background:var(--tag-bg);color:var(--tag-fg);
+  border:1px solid var(--tag-bd);border-radius:6px;
+  padding:1px 8px;font-size:14px;font-weight:700;margin:2px 4px 2px 0;
+}
+.quote{
+  margin:10px 0 0;padding:8px 12px;border-left:5px solid var(--green);
+  background:var(--green-tint);font-size:16px;
+}
+
+/* ---------- Details / Tell me more ---------- */
+details{border:2px solid var(--line);border-radius:12px;margin:0 0 12px;background:var(--card)}
+details[open]{border-color:var(--purple)}
+summary{
+  display:flex;align-items:center;gap:10px;
+  min-height:var(--tap);padding:12px 14px;
+  font-size:18px;font-weight:700;cursor:pointer;list-style:none;
+}
+summary::-webkit-details-marker{display:none}
+summary .chev{margin-left:auto;flex:0 0 auto;color:var(--purple);transition:none}
+details[open] summary .chev{transform:rotate(180deg)}
+.detail-body{padding:0 14px 14px}
+.detail-body p:last-child{margin-bottom:0}
+.tellmore{margin-top:10px;border-color:var(--line)}
+.tellmore summary{font-size:16px;min-height:48px;color:var(--purple-dark)}
+
+/* ---------- Rule cards ---------- */
+.rule{border:2px solid var(--line);border-left:8px solid var(--purple);border-radius:12px;padding:14px;margin:0 0 14px}
+.rule h3{margin-bottom:6px}
+.rule p{margin-bottom:0}
+.figure{margin:12px 0 0;text-align:center}
+.figure figcaption{font-size:15px;color:var(--ink-soft);margin-top:6px}
+
+/* ---------- Glossary ---------- */
+.term{border-bottom:2px solid var(--line);padding:14px 0}
+.term:last-child{border-bottom:none}
+.term h3{margin-bottom:4px}
+.term p{margin-bottom:0}
+.term .sixman{
+  display:block;margin-top:8px;padding:8px 12px;
+  background:var(--purple-tint);border-radius:8px;font-size:16px;
+}
+.term .sixman b{color:var(--purple-dark)}
+
+/* ---------- Schedule ---------- */
+.game{border:2px solid var(--line);border-radius:var(--radius);padding:14px;margin:0 0 14px}
+.game.isnext{border-color:var(--purple);border-width:3px;background:var(--purple-tint)}
+.game h3{margin-bottom:4px}
+.kicker{font-size:13px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--kicker);margin:0 0 4px}
+.game .meta{font-size:16px;margin:0 0 6px}
+.score{font-size:20px;font-weight:800;margin:6px 0}
+
+/* ---------- Misc ---------- */
+.note{
+  border:2px dashed var(--purple);background:var(--purple-tint);
+  border-radius:12px;padding:12px 14px;font-size:16px;margin:0 0 18px;
+}
+.empty{padding:22px;text-align:center;border:2px dashed var(--line);border-radius:12px;color:var(--ink-soft)}
+footer.site{
+  border-top:2px solid var(--line);margin-top:40px;padding:18px 16px 40px;
+  max-width:760px;margin-left:auto;margin-right:auto;
+  font-size:15px;color:var(--ink-soft);
+}
+.visually-hidden{
+  position:absolute;width:1px;height:1px;margin:-1px;padding:0;
+  overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0;
+}
+@media (min-width:620px){
+  .players{grid-template-columns:1fr 1fr}
+  h1{font-size:32px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important}
+}
+@media print{
+  header.site,.backbtn,.menu{display:none}
+  .page{display:block!important}
+}
+</style>
+</head>
+<body>
+
+<a class="skip" href="#main">Skip to main content</a>
+
+<header class="site">
+  <div class="bar">
+    <span class="mark">
+      <!-- Official SMA Bears mark, inlined as a data URI so it costs zero network requests -->
+      <img class="logo-chip" id="hdrLogo" src="" alt="San Marcos Academy Bears">
+    </span>
+    <div class="titles">
+      <p class="school" id="hdrSchool">San Marcos Academy</p>
+      <p class="sub" id="hdrSub">Bears Six-Man Football</p>
+    </div>
+    <button class="backbtn" id="backBtn" type="button">
+      <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M10 2 4 8l6 6" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Home
+    </button>
+  </div>
+</header>
+
+<main id="main" tabindex="-1">
+
+<!-- ============================ HOME ============================ -->
+<section class="page" id="page-home" aria-labelledby="h-home">
+  <p class="hero"><img id="heroLogo" src="" alt="San Marcos Academy Bears"></p>
+  <h1 id="h-home">Welcome to Bears Football</h1>
+  <p class="lede">New to six-man football? You are in the right place. Learn the rules, identify the players, find the next game, or figure out what just happened on the field.</p>
+
+  <div id="nextGameSlot"></div>
+
+  <nav class="menu" aria-label="Main sections">
+    <a href="#/what">
+      <span class="ico" aria-hidden="true"><svg width="34" height="34" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9.5" stroke="currentColor" stroke-width="2"/><path d="M9.2 9a2.9 2.9 0 1 1 3.6 2.8V14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="17.4" r="1.3" fill="currentColor"/></svg></span>
+      <span>What Just Happened?<span class="why">Plain-English answers to what you just saw</span></span>
+    </a>
+    <a href="#/rules">
+      <span class="ico" aria-hidden="true"><svg width="34" height="34" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9.5" stroke="currentColor" stroke-width="2"/><path d="M12 6.5V12l3.6 2.2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span>
+      <span>Six-Man in 60 Seconds<span class="why">The rules that make this game different</span></span>
+    </a>
+    <a href="#/roster">
+      <span class="ico" aria-hidden="true"><svg width="34" height="34" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="3.6" stroke="currentColor" stroke-width="2"/><path d="M4.5 20a7.5 7.5 0 0 1 15 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span>
+      <span>Meet the Players<span class="why" id="rosterWhy">Who is number 7? Search by number or name</span></span>
+    </a>
+    <a href="#/schedule">
+      <span class="ico" aria-hidden="true"><svg width="34" height="34" viewBox="0 0 24 24" fill="none"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5" stroke="currentColor" stroke-width="2"/><path d="M3.5 9.5h17M8 3.5V6.5M16 3.5V6.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span>
+      <span>Schedule &amp; Tickets<span class="why">Every game, plus where to buy tickets</span></span>
+    </a>
+    <a href="#/glossary">
+      <span class="ico" aria-hidden="true"><svg width="34" height="34" viewBox="0 0 24 24" fill="none"><path d="M4.5 5.5A2 2 0 0 1 6.5 3.5H19v17H6.5a2 2 0 0 0-2 2v-17Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M8 8h7M8 11.5h7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span>
+      <span>Football Glossary<span class="why">What does that word mean?</span></span>
+    </a>
+  </nav>
+
+  <p class="small">No account, no app, no download. Everything on this site works on a phone.</p>
+</section>
+
+<!-- ============================ RULES ============================ -->
+<section class="page" id="page-rules" aria-labelledby="h-rules">
+  <h1 id="h-rules">Six-Man in 60 Seconds</h1>
+  <p class="lede">Six-man football is real football with fewer people and more room to run. Here is everything you need to follow tonight's game.</p>
+
+  <div class="rule">
+    <h3>Six players a side, and everybody does everything</h3>
+    <p>Each team puts no more than six players on the field, so the same student may block, run, catch, and tackle in the same quarter.</p>
+    <details class="tellmore"><summary>Tell me more<span class="chev" aria-hidden="true">▾</span></summary>
+    <div class="detail-body"><p>A team needs six players to start and may keep playing with five or four. Every offensive player is an eligible receiver — there is no such thing as an "ineligible lineman" here, so the player snapping the ball can legally catch a pass.</p></div></details>
+  </div>
+
+  <div class="rule">
+    <h3>The field is smaller, but it plays much bigger</h3>
+    <p>Six-man is played on an 80-yard by 40-yard field, and with only twelve players on it there is far more open grass than in an 11-man game.</p>
+    <details class="tellmore"><summary>Tell me more<span class="chev" aria-hidden="true">▾</span></summary>
+    <div class="detail-body">
+      <p>End zones are 10 yards deep, the goal posts stand 25 feet apart with the crossbar 9 feet up, and the 40-yard line is midfield. That extra space is why one missed tackle so often becomes a touchdown.</p>
+      <figure class="figure">
+        <svg viewBox="0 0 320 130" width="100%" height="auto" role="img" aria-label="Diagram of a six-man field: 80 yards long by 40 yards wide, with a 10-yard end zone at each end and the 40-yard line marking midfield.">
+          <rect x="2" y="14" width="316" height="100" fill="#E7F3EC" stroke="#0F6B3A" stroke-width="2"/>
+          <rect x="2" y="14" width="38" height="100" fill="#4B176B"/>
+          <rect x="280" y="14" width="38" height="100" fill="#4B176B"/>
+          <g stroke="#0F6B3A" stroke-width="1.5">
+            <line x1="70" y1="14" x2="70" y2="114"/><line x1="100" y1="14" x2="100" y2="114"/>
+            <line x1="130" y1="14" x2="130" y2="114"/><line x1="190" y1="14" x2="190" y2="114"/>
+            <line x1="220" y1="14" x2="220" y2="114"/><line x1="250" y1="14" x2="250" y2="114"/>
+          </g>
+          <line x1="160" y1="14" x2="160" y2="114" stroke="#17121B" stroke-width="3"/>
+          <text x="160" y="9" text-anchor="middle" font-size="10" font-weight="700" fill="#17121B">40 = midfield</text>
+          <text x="160" y="126" text-anchor="middle" font-size="10" fill="#17121B">80 yards long, 40 yards wide</text>
+          <text x="21" y="68" text-anchor="middle" font-size="9" fill="#fff" font-weight="700" transform="rotate(-90 21 68)">END ZONE</text>
+          <text x="299" y="68" text-anchor="middle" font-size="9" fill="#fff" font-weight="700" transform="rotate(-90 299 68)">END ZONE</text>
+        </svg>
+        <figcaption>A six-man field next to an 11-man field: 20 yards shorter and 10 yards narrower, with five fewer players per side.</figcaption>
+      </figure>
+    </div></details>
+  </div>
+
+  <div class="rule">
+    <h3>You need 15 yards for a first down, not 10</h3>
+    <p>The offense has four downs to gain 15 yards, so a five-yard run that would feel fine in an 11-man game is barely a third of the way there.</p>
+    <details class="tellmore"><summary>Tell me more<span class="chev" aria-hidden="true">▾</span></summary>
+    <div class="detail-body"><p>This is why six-man offenses throw so often and take so many shots downfield. Grinding out three yards a carry does not get you a first down — it gets you a punt.</p></div></details>
+  </div>
+
+  <div class="rule">
+    <h3>The player who catches the snap cannot just run with it</h3>
+    <p>Before the ball can be carried past the line of scrimmage, the player who received the snap has to hand it off, pitch it, or pass it to a teammate.</p>
+    <details class="tellmore"><summary>Tell me more<span class="chev" aria-hidden="true">▾</span></summary>
+    <div class="detail-body"><p>This is called the <b>clean exchange</b> rule, and it is the single most confusing thing for new spectators. The snap receiver may still throw a forward pass or kick the ball himself. He simply may not tuck it and run past the line without the ball first touching another player. That is why you see so much motion, pitching, and misdirection right after the snap — and why the quarterback sometimes takes a handoff right back.</p></div></details>
+  </div>
+
+  <div class="rule">
+    <h3>Touchdowns are six, but the extra point is backwards</h3>
+    <p>A touchdown is still worth 6 points. After it, a <b>kick</b> is worth 2 points and a <b>run or pass</b> is worth only 1.</p>
+    <details class="tellmore"><summary>Tell me more<span class="chev" aria-hidden="true">▾</span></summary>
+    <div class="detail-body"><p>That is the reverse of 11-man football, and it is not a mistake. Kicking is genuinely hard when you only have six players to protect the kicker, so the rules pay you double for pulling it off. If you hear the crowd react strangely to an extra point, this is usually why.</p></div></details>
+  </div>
+
+  <div class="rule">
+    <h3>A field goal is worth 4 points</h3>
+    <p>Because kicking is so difficult with six players, a successful field goal counts for 4 points instead of 3.</p>
+    <details class="tellmore"><summary>Tell me more<span class="chev" aria-hidden="true">▾</span></summary>
+    <div class="detail-body"><p>Even so, field goals are rare. With 15 yards needed for a first down and a defense that has to cover the whole field, most coaches would rather go for it on fourth down than take the points.</p></div></details>
+  </div>
+
+  <div class="rule">
+    <h3>Games are fast, open, and high-scoring</h3>
+    <p>Quarters are 10 minutes instead of 12, yet scores in the 50s and 60s are completely normal.</p>
+    <details class="tellmore"><summary>Tell me more<span class="chev" aria-hidden="true">▾</span></summary>
+    <div class="detail-body"><p>Fewer defenders means more space, and more space means big plays. Do not assume a two-touchdown lead is safe — in six-man, that can disappear in about ninety seconds.</p></div></details>
+  </div>
+
+  <div class="rule">
+    <h3>A 45-point lead ends the game early</h3>
+    <p>If a team leads by 45 or more points at the end of the first half — or reaches a 45-point lead at any point after that — the game ends right there.</p>
+    <details class="tellmore"><summary>Tell me more<span class="chev" aria-hidden="true">▾</span></summary>
+    <div class="detail-body"><p>This is the <b>mercy rule</b>, and it is standard in Texas six-man. If everyone suddenly shakes hands in the third quarter, nothing went wrong — the scoreboard simply hit 45.</p></div></details>
+  </div>
+
+  <p class="note"><b>Where these rules come from:</b> San Marcos Academy competes in TAPPS, which plays by the Texas six-man rules (NCAA rules with UIL six-man variations). Rules can be amended between seasons — confirm against the current TAPPS and UIL manuals before each season.</p>
+
+  <div class="btnrow">
+    <a class="btn btn-secondary" href="#/glossary">Football glossary</a>
+    <a class="btn btn-secondary" href="#/what">What just happened?</a>
+  </div>
+</section>
+
+<!-- ============================ ROSTER ============================ -->
+<section class="page" id="page-roster" aria-labelledby="h-roster">
+  <h1 id="h-roster">Meet the Players</h1>
+  <p class="lede" id="rosterLede">Saw a great play and want to know who made it? Start with the number on the jersey.</p>
+
+  <div id="rosterNotice"></div>
+
+  <div class="field numsearch" id="numField">
+    <label for="numQ">Who is number…?</label>
+    <input id="numQ" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="off"
+           placeholder="7" aria-describedby="numHelp">
+    <p class="small" id="numHelp" style="margin-top:6px">Type the jersey number you saw on the field.</p>
+  </div>
+
+  <div class="field">
+    <label for="nameQ" id="nameLabel">Or search by name</label>
+    <input id="nameQ" type="search" autocomplete="off" placeholder="Last name or first name">
+  </div>
+
+  <div class="filters" id="filterRow">
+    <div id="posField">
+      <label for="posQ">Position</label>
+      <select id="posQ"><option value="">All positions</option></select>
+    </div>
+    <div id="gradeField">
+      <label for="gradeQ">Grade</label>
+      <select id="gradeQ"><option value="">All grades</option></select>
+    </div>
+  </div>
+
+  <div class="btnrow" style="margin-bottom:6px">
+    <button class="btn btn-secondary" type="button" id="clearRoster">Clear all filters</button>
+  </div>
+
+  <p class="count" id="rosterCount" role="status" aria-live="polite"></p>
+  <div class="players" id="rosterList"></div>
+
+  <p class="note" style="margin-top:20px"><b>Six-man athletes play everywhere.</b> The positions listed are where a player is most often used, not the only place you will see them. Most Bears play both offense and defense in the same game.</p>
+  <p class="small">Something here wrong or out of date? Contact <span id="contactSlot">the SMA Athletics Office</span> and it will be corrected.</p>
+</section>
+
+<!-- ============================ SCHEDULE ============================ -->
+<section class="page" id="page-schedule" aria-labelledby="h-schedule">
+  <h1 id="h-schedule">Schedule &amp; Tickets</h1>
+  <p class="lede" id="seasonLede">The full Bears six-man season.</p>
+  <div id="scheduleList"></div>
+  <p class="small">Dates and times can change, especially for weather. The official San Marcos Academy athletics calendar is always the final word.</p>
+</section>
+
+<!-- ============================ WHAT JUST HAPPENED ============================ -->
+<section class="page" id="page-what" aria-labelledby="h-what">
+  <h1 id="h-what">What Just Happened?</h1>
+  <p class="lede">Tap the question that sounds closest to what you saw.</p>
+
+  <p class="note"><b>A quick caveat.</b> This page explains the rules that usually cause each situation. It cannot tell you what the officials actually called on a specific play — when more than one explanation is possible, it says so.</p>
+
+  <details><summary>Why was that touchdown worth that many points?<span class="chev" aria-hidden="true">▾</span></summary>
+  <div class="detail-body"><p>A touchdown is 6 points, same as always. The confusing part is what comes after: a <b>kicked</b> extra point is worth 2 and a <b>run or pass</b> extra point is worth only 1 — the reverse of 11-man football. So a touchdown drive can end up worth 6, 7, or 8.</p>
+  <details class="tellmore"><summary>Tell me more<span class="chev" aria-hidden="true">▾</span></summary><div class="detail-body"><p>The other numbers you may see on the scoreboard: a field goal is 4 points and a safety is 2. If a team is awarded a single point on a defensive play during a try, that is a safety on the try — rare, but it exists.</p></div></details></div></details>
+
+  <details><summary>Why did the quarterback cross the line before throwing?<span class="chev" aria-hidden="true">▾</span></summary>
+  <div class="detail-body"><p>He is allowed to. In six-man, the passer may throw from beyond the line of scrimmage without penalty — a rule that does not exist in 11-man football.</p>
+  <details class="tellmore"><summary>Tell me more<span class="chev" aria-hidden="true">▾</span></summary><div class="detail-body"><p>This applies to the player who received the snap and to the player who took the legal exchange from him. It is one reason six-man offenses look so improvised: the passer can run to buy time and still throw it downfield.</p></div></details></div></details>
+
+  <details><summary>Why did the official throw a flag?<span class="chev" aria-hidden="true">▾</span></summary>
+  <div class="detail-body"><p>Something illegal happened, and the referee will announce what it was over the microphone. Listen for the announcement before assuming — the flag itself does not tell you which team committed the foul.</p>
+  <details class="tellmore"><summary>Tell me more<span class="chev" aria-hidden="true">▾</span></summary><div class="detail-body"><p>Fouls you will see most in six-man: <b>illegal procedure</b> (often the clean-exchange rule being broken, which costs 5 yards <i>and</i> the down), <b>too many players</b> in the huddle or on the field, <b>false start</b>, <b>holding</b>, and <b>pass interference</b>. There is also a six-man-specific personal foul for hitting the snapper within one second of the snap on a kick.</p></div></details></div></details>
+
+  <details><summary>Why did possession change?<span class="chev" aria-hidden="true">▾</span></summary>
+  <div class="detail-body"><p>One of five things happened: the offense scored, it punted, it failed to gain 15 yards in four downs, it threw an interception, or it lost a fumble.</p>
+  <details class="tellmore"><summary>Tell me more<span class="chev" aria-hidden="true">▾</span></summary><div class="detail-body"><p>There is a six-man wrinkle worth knowing: on <b>fourth down</b>, once a legal exchange has happened, a fumble becomes dead where it is recovered and cannot be advanced by a teammate. So if you see a scramble for a loose ball on fourth down and the officials wave it dead, that is why.</p></div></details></div></details>
+
+  <details><summary>Why did the clock stop?<span class="chev" aria-hidden="true">▾</span></summary>
+  <div class="detail-body"><p>Usually an incomplete pass, a player going out of bounds, a score, a first down, a penalty, a timeout, or an injury.</p>
+  <details class="tellmore"><summary>Tell me more<span class="chev" aria-hidden="true">▾</span></summary><div class="detail-body"><p>Six-man quarters are 10 minutes, so stoppages matter more than you would expect. Late in a close game, watch the offense deliberately throw toward the sideline — that is a way to stop the clock without spending a timeout.</p></div></details></div></details>
+
+  <details><summary>Why did the game end early?<span class="chev" aria-hidden="true">▾</span></summary>
+  <div class="detail-body"><p>Almost certainly the 45-point mercy rule. If a team leads by 45 or more at the end of the first half, or reaches a 45-point lead at any time after that, the game ends immediately.</p>
+  <details class="tellmore"><summary>Tell me more<span class="chev" aria-hidden="true">▾</span></summary><div class="detail-body"><p>The result counts as a complete game. Weather — lightning in particular — can also suspend or end a game, but that comes with a stadium announcement.</p></div></details></div></details>
+
+  <details><summary>What does "first down" mean?<span class="chev" aria-hidden="true">▾</span></summary>
+  <div class="detail-body"><p>It means the offense gained enough yards to earn a fresh set of four tries. The chains move, the down resets to first, and the crowd cheers.</p>
+  <details class="tellmore"><summary>Tell me more<span class="chev" aria-hidden="true">▾</span></summary><div class="detail-body"><p>"First and 15" means it is the first of four tries and the offense needs 15 yards. "Third and 2" means two tries have been used and 2 yards remain.</p></div></details></div></details>
+
+  <details><summary>Why does the offense need 15 yards?<span class="chev" aria-hidden="true">▾</span></summary>
+  <div class="detail-body"><p>Because six-man rules require 15 yards for a first down rather than 10. With so much open field, 10 yards would simply be too easy.</p>
+  <details class="tellmore"><summary>Tell me more<span class="chev" aria-hidden="true">▾</span></summary><div class="detail-body"><p>This is the main reason six-man looks pass-happy. Short runs do not keep a drive alive, so offenses take bigger swings on every down.</p></div></details></div></details>
+
+  <details><summary>Who is allowed to receive the snap?<span class="chev" aria-hidden="true">▾</span></summary>
+  <div class="detail-body"><p>Any of the six offensive players may take the snap. But whoever does cannot run it past the line of scrimmage — he must first hand off, pitch, or pass it to a teammate.</p>
+  <details class="tellmore"><summary>Tell me more<span class="chev" aria-hidden="true">▾</span></summary><div class="detail-body"><p>He may still throw a forward pass or kick the ball himself. And the exchange counts even if it is messy: if he fumbles it and a teammate picks it up, the exchange is complete and that teammate can run. If it comes right back to him afterward, he can run too.</p></div></details></div></details>
+
+  <details><summary>What happens after a safety?<span class="chev" aria-hidden="true">▾</span></summary>
+  <div class="detail-body"><p>The defense is awarded 2 points, and then the team that was just scored on has to kick the ball back to them. Scoring and then kicking off feels backwards, but that is the rule.</p>
+  <details class="tellmore"><summary>Tell me more<span class="chev" aria-hidden="true">▾</span></summary><div class="detail-body"><p>A safety happens when the ball carrier is tackled in his own end zone. In six-man the free kick after a safety is taken from the 20-yard line, while a normal kickoff comes from the 30.</p></div></details></div></details>
+
+  <details><summary>Why is everyone lined up so far apart?<span class="chev" aria-hidden="true">▾</span></summary>
+  <div class="detail-body"><p>With six players a side there is no reason to bunch up. Spreading out forces the defense to cover the entire 40-yard width of the field with very few bodies.</p>
+  <details class="tellmore"><summary>Tell me more<span class="chev" aria-hidden="true">▾</span></summary><div class="detail-body"><p>Three players must be on the line of scrimmage and no more than three may be in the backfield at the snap. Beyond that, coaches can put people almost anywhere — which is why formations vary so wildly from play to play.</p></div></details></div></details>
+
+  <div class="btnrow">
+    <a class="btn btn-secondary" href="#/glossary">Look up a word</a>
+    <a class="btn btn-secondary" href="#/rules">Six-Man in 60 Seconds</a>
+  </div>
+</section>
+
+<!-- ============================ GLOSSARY ============================ -->
+<section class="page" id="page-glossary" aria-labelledby="h-gloss">
+  <h1 id="h-gloss">Football Glossary</h1>
+  <p class="lede">Plain-language definitions. No prior football knowledge assumed.</p>
+
+  <div class="field">
+    <label for="glossQ">Search terms</label>
+    <input id="glossQ" type="search" autocomplete="off" placeholder="Type a word you heard">
+  </div>
+  <p class="count" id="glossCount" role="status" aria-live="polite"></p>
+  <div id="glossList"></div>
+</section>
+
+</main>
+
+<footer class="site">
+  <p><b id="ftSchool">San Marcos Academy</b> — <span id="ftTeam">Bears Six-Man Football</span></p>
+  <p id="ftUrl"></p>
+  <p>Built for spectators. Rules summaries follow the Texas six-man variations used in TAPPS competition and are provided for explanation only; the officials on the field are always the authority.</p>
+</footer>
+
+<script>
+"use strict";
+
+/* ============================================================================
+ * ============================  DATA BLOCK  ==================================
+ * ============================================================================
+ * This is the ONLY part of the file you need to edit to keep the site current.
+ * Anything marked  ### PLACEHOLDER ###  must be replaced with real,
+ * school-approved information before this site goes live.
+ * ========================================================================== */
+
+var TEAM = {
+  school:   "San Marcos Academy",
+  teamName: "Bears Six-Man Football",
+  season:   "2026-27",
+  // ### PLACEHOLDER ### Short address printed under every QR code.
+  shortUrl: "smabears.org/football",
+  // ### PLACEHOLDER ### Who fixes a wrong name, number, or schedule change.
+  // Do not publish a staff email address without that person's approval.
+  contact:  "the SMA Athletics Office",
+  // ### PLACEHOLDER ### Official school athletics schedule page.
+  officialScheduleUrl: "",
+  // Set to false once the coaching staff finalises jersey numbers. While true,
+  // the roster page warns spectators that numbers may still change.
+  numbersProvisional: true,
+  // Home venue, used for every home game's map link.
+  homeVenue:  "San Marcos Academy",
+  homeMapUrl: "https://maps.google.com/?q=2801+Ranch+Road+12+San+Marcos,+TX+78666"
+};
+
+/* Official SMA Bears logo, inlined as a data URI (about 15 KB) so the site
+   still makes zero network requests. The white background has been keyed out
+   so the mark sits correctly on both the light and dark themes; the white
+   claws and teeth inside the artwork are preserved. Replace to swap the mark. */
+var LOGO = "data:image/webp;base64,UklGRjo6AABXRUJQVlA4WAoAAAAQAAAA/AAAxwAAQUxQSLELAAAB8IZtmyK57f/dBd0zu+LD0pqZ2SGtmXEU5g+aw5wIwkyCMDMzR2tm3HzkrMy21swWmO2d6eqqul9MD2zvdNXxeRcRE4D/x5SFcSYThUKdyPgSAPYsBJCEk+g40zS2P/39LDz39DnQIoiURmetRX+ELuwgdLvqTQCLbiFdIXndSkCGj0wBObJopH0hgKQ3maYShWkxitM06U5o9fuH2TIsNBn57RHo0BHAkY1f0rM9W7JEQPeiAKBxWqPROAnF9capjUbjUABai04iFb8jLbu0ljwbOmiExG4rm+z6r+8FRBcSwMLVX/wlC1evXLly5ZqVF7Ldrly9AgCUKAD+wtyze+94JnTACMgd7qcztpPJyI8MQRfJFMNDv76LpGnP2dG0k+R14/spFOjan5izZ9/iuagHi0zqa5vMPLs2js2TodoS4ITmFJkZw8KsOGe7zzJL5teMQmvU8GVOsY8+59mQgSK0/Ce9Y8+ePBUKQmH3pRnpHKfROpI/ALTcZtzYfpCe50IGCi5gzn4601pSS4Df30PL6fc5L3obFtxOx/46ez/SIBFqR5v7vtA5swO+9DiZsZSGPP2ltOy3aX4MaYikuMRb9tnyQ58mrWNJLUnHvlt/6S5ahIdG4+Hc96vdsczOcRpbfA2S8EiTrzFj/43hwPT24e0hQkPhWG9YjZ71EDmIeVX4z0GGhhi6ib4q+HR4YA4r03MyQGa3KuTeEDFxNxV1cxhzUn+WNt4U9rd5ZWwIkZNYHc+Eh1Dbn2dtRbgPQoQGaljKVkVwOEASefYW46vA2zu3FeGBFNfRVkGLL0eC8BRy9PncD77c/HO7RAQIJI6iGXjOPJhAIERFsmg980Fn+QVohKkUW6+nGWw5vwCFUJVYcBv9IGvy86iLYIHCvPXeDa6cn0OCkE3xMrYGluPnIRGyQsy6x/tBZfxq1EXYqJPpOai9ffYQyKCR2OgHFy23Dxstlz9rObgdx7QImRr+QDPAPA1CVuq9rrVukPlnToYMl1S8ky0OcssJmYTLEN7nzID7B8JF4ixaDnTn1u+hZaAonEPHAZ/xS0jDREj829qB5z8QKCJZ8K2W4aA3/ntzEhEiCgcz5+A3PA4qQEQqr3S+CtyRISKAvViJhkcFiMT80x+1PtIk0mtZkSEiUb+eLR9pUs29ii1WZHgoUb+ShtVxRFhIyHHmrJATkpCQmHs1M1bp8wgIkWx/BTNWqecZkEKKMFA4hhmrxfJcANBBoPfZaFmx3nPjYXsp1FT1JbiRrmroSfKXbwJk1Wm8aVPuK4f0zpI/PQWQ1Vab9SsaVnOe8YXbt4WqMo1jfJOVbcj7doaqLqFn/8Xb6qLPuWEn6MpS2IWelW75wDZQFaWw/b2m4mj5wPZQlaTELpO0rHrDyZ2hKkjIRXfTsvotH95diuqR+jQaBqA3Dy8UsnqA55wPgZzfemOCytX4wJRlEHoSEBUjUjHBPAyYTf1aaFEpuoZf5IahmPMXSEWFCOC3dAxHy98BQlZFHR9cR8uQzPnrOpDKwZQUd1L4AJkzLHM2P3ggkAwUIaVo61pIqfAhesfQ9GT2oV2hhBwUOkGx/tvY2NjasV+2FT5lHQPUWt71WwBaDQKVAIv22/MXGx/ZuJnFGzc+snHNngfv9ctmzjDNyI2f2ROQM01AAmecPslim7dbhq+zJN+6HxIppRBipmgAr/0VSed8O4u9994553y4kN7lfGhfFCut1QxQqO+7IWMrcwzyFjdvmJxcNzKyCADSVJRLaTQuI2kY7I7F/rWNxlEAtCyRAL5B0nsGvHfOORZ/eXUKAEqVo44zx2kc49AY48kbx8+q1wGtS5DgdDJnRHqTkWyuHz0CSKdN4n/oHSPTWbZ/9ngAYlrqOJMtzxj1ecZn1m4PSN03odON9J6xmpFP/W0voCb6pPHfpGe8+pzk508GRF8k/ptNk0cM6X3O/Gf7AqIniT02M4aN46Z96pC9COxw2dq1Y2Pnu8ihN+Rlc7Tsocup2CG95eUpehZJ+8Jm/JCW16Syl3aNq2kjiJb8JNJ+rIsjZyZHterHeCTlD56MWk8JPmkMo9jTvxJpLym+wiyO6MklUD2tiiY6418rdLTRmewl0NFGw88MqXij5zBEvLn8r5ARx0dUDysj6zb08LWo8vb5D0rdRSKWN01EMeMvUesCGtfRRpS1V+6uZTdiIqqY8Z1IusEFJqqed6/tCqgzrs3KYS26kPqr3sVT/j3yAMguFPbjC/HkZo++tIZupTxkCyN6G/SqsXjV09HkR5TuAQJ4mj6SuDVEL1DpRCR5PrKV6E1iB+9I56PH8Hho9GE/OnrGr3Ev7wd0utQ9z/f9zbvY4av7kuJs8pOotxi3ztz1Mqn6IPUB930JYmgqcqa4CjX0U2InaAwzbg3X75KIvkBCQNTW00eM5y3D6LsUUNjfm3ix7or5QvUNgMJR9PHScu9ADdOaJO972sRKbtfNSTHNGtfQxIkzfB/UdElxoqOLEOvI90Ji2iWObtFFhyV/thc0SljDCc97FxmWN/8AkChlguO3WB8VGddtBSVQUo076WLC8MatkKK0EhuiwvK2YUiUVonGZufjwXDdfKFQ3hr+QcNYdE1OLBIKJU7xAxcNnrxlFiTKXMM/GAuWm362AAqlluLIZ3IfBZbPvhRCoOQChzIKHKcOQg2ll0O4iC78nN/yUqSYiR/6ibfB5+xTi5Gg9Fq89nrSM/i9WQyF0kvsRdqc4W95HvRM2JsZY9DZR4+VagbsSRsFbPH7slY6YJI+Dpg9e6jSpRNPR4Pl15FIIcqFTdFAx2+iXZRp/hPxwJyTZy7aTkCUJsEFzBmPjvT86UItynNeVNB5Gh4CVRp1QVyQ9HaiJkqDv0YHyWGUVKnFd1gXHVNDZanh02wxOlu1sqRimcuiw/oLoctRw9vZig9OlETKPW6wLkKuL4nC0cwZH35ithblGDURwoxfQVqOo2ijZI0ohUhmf61lYuQLKAWExL9sHh3G/3p+IsoAhbNofWzQ8LXQpYDE/9L56HBLyoI6zvDOxwZfLcqCFGc+nfvYOAKlgcYDzOPC8ZK5QpRF6Be/QBcVJLdFaaDw0i3ODihvK8puVyIkWPyMt4OJ9NXEoTJB4aAmB7HnncuZkXnTVIzj3yFLhAQvvs/4QXTzi6e8s6y/nVnFPFIuDGEFm4PocTQ2Gf4db60av6FkMtlzgtkAekhgHX8v8a6KyXlvySAwfCvzUhlTioOht9lwLvCOGZdnpXLcvIcQ5YLCvAnmJXLst+/a+W0hAKR4u2/5/pej3JYP7g2Fsiu56N/MSmO57JO0HfKu2ePOEEKKBO/ldPq8a9+fnD/+3xI589i+0Ci/xPxbmJfDN/kx7PvM81mhYdfPbdy0sfPjG7eHACCS+b97/NGNfd60kT1mxaa71nMN5OXJuSsUZqLC7FtoS+DzFj+COfoL7HjeWOe/jx2A8n9x7B9jHc8fa7FjXuxIZhwTO7O0ltdBY2YqudUNzPribbsrIvlRSIXDln5gafu7UUIhpqPHU5d+YOnSpcuWfpNd25erWd+3xvoyZLx0SMsZAomFN9H0kGeZyTwLm81m84XmHaOHQaPrpGvRp+nVSdfoPLp4dHT0yNEfNJ+dah6LFIeSZGayzExPxivmKIkZKzF8O20H087C8X+NXz++tj5Ur9frCaAAQKVJ2p5gkOq0PUklOtbr9Tq0FIePXze+ie2m3fUp57UCEjNYiQU30HjfVnjJyjVfXnkuulcKg1+oYrRLFL945RdXrfw2u3TOOd+V4eWpkJjRSoysZ6F5VaNxamMY7bqwQzULrTQKG43GKxv/11ZocmN8QYtXzNESM1xi1vUb/ntku5GFKEzTNE0QhipN01SjfXhkZGSPycm7Jp8jSZdlGR2vqUFixkt01O0Cwanb0fnYn/3o5z8jSesu0ZAYgEJK0Y6QFe1SSon2l5/+v+eQxyBBbKs0TVMA2H3PeQJxrpNEI+6ljLrpBgBWUDggYi4AADCVAJ0BKv0AyAA+SR6LQ6KhoRcrHpgoBISm7jQCdu1AAwQH4AfoB/ANAA/gECAfgBdXy6RPrx+C8lTkvs9+AZHOprpnzDehfOx/oPU3/V/8z7BPOn8wf7h+sH/0P3M94P9r9RX/I9Sl6Fvl5ezx/a/+3hJf9l/Fj9bPmB3r/h/yY/c71t/FvnH77/a/25/u/tL/3ngX9E/jv+J6K/x/7efr/7v+7Pr5+x3iv+Xft/+/9QX8g/nX+Y/t37mfmr9anyH+07YO0v+89QX2e+o/7T/FfvJ/dvSU/2PRT69f9n3Av55/U/+D5RPg7fe/91/zP8f8AX9E/w3/Y/yf5RfTH/Zf/H/Q/mX7p/z//Kf+P/RfAT/Lv63/w/8J/oP/d/lf/////vL9m37c+yh+tqoQFibyai3L8ASZRNspJuWjfiz/I6/oc0yL4crESr96Hp0YvwKSAKJRAHDEnsSf35EPLNBZlnAJWDjUGnyyPdmk5Pqk6Md9xvFH5DFUkm+BE9BBLzvVG/eOj8NFxougRgPgv7ejQktT4MTQJ5/gBs8TZF1VreXEhFsZcBRbGcL8P35YRwShWT8kN+mOr6VjLt7cjxZzd5UwLxs4MTPp4YaBt3SOPAK/RKCJ990J1w3qJlQFNUsRN+uwDJVnRUNDNePd+lKWucOM5HtCL8mBFjdPpmgsx+eCcR3HUgxOZ0aCU96f8rRzXS20obO3zxra73JVe77dxfhQlYXqCXt6eK8QdlV6D1TsdxS7FCXv7uPTvjppgO0cF5v8UQ35xaXfvnDOYvEHWpSuMAByeCjKYb/T7PwTvCkn8T+Hr5SNrDh+jdZTp55O6pkfNLxO0JSQmsjuTncc+88erGhsoFI7PIzuoBlaO0GDN4MpMW/rZkCg0WCZ5LKLnDGRUFFSpzA+hfHLwIbb9WToo5QFGw6CdS1CQ8z6+OE7l7aKGNCIO0sXl9jfVpXrf9JjqoN0SFJBF+9ane5wSPfX/YyevYiLddNRGZ0g0yFb0VzHUyu4m3UMgCMSUxqZD1964dyd0AVyGLcWZtSUy+04vGI3Ffd/+gaE+tgK9pHpesNB5IIlf13UuE57XOLani2/+eOquFi2nbWIz/YGibdTGhAIf1m/rL73Fuy2HoNjR0X7VcH4/8p0b8TtfasKGUGHehe/uyGoHD7yHSoOmp+6evciQZ3YODqVDvwMspNBerWvs4WPZg9jZ/OSME1vXX3BOHhvTKPAZkkIBRJa6AngjCh2Oyy+M3bvwuhqav5vmTDPNwTV3X7ERHKboll6AHWK0t2ovCQUfgaNoiWPidFXLHLzZf+Yj0/aBLkjKU/WIADLW7T1DaYj5o+YidCmJvWYf0us0tHgShGLm8RIlUdGanX7kDa8mr6ENbqyjiRe2gjsOnJ1zrfzDd49riwynhmUMGfW1GM15vKmujOA12Ia3RcqRMFxBDJWpD0T3g2knK4QuevOioJQPyhvispf8YpSJblcH9ewmzZlNhL42iuQTpqROl9c1xaJJ7jwwHjcRV5ZtMvpOoKN0kAW+Q+xLEDmpBryXlpuuz8/sYu+xXHNUVXWrxyq2WEvaWJidlqAO3bZfgAxVMWYwJ+bFemAAP7sQc2vJmEnWFhDWH97GR+uKkLYZ1RsDRKOBWqGwL2RYGfez4zeX05mk2URsXag3rzzLJz7AYsUNTmI+djOBXY/4hfbdlcVRbjsHMNVDK7B3Sh0wpjn9IQweNYsWMAxKi2xlGCWgy8Xn8eMpmXzXjkW7zZHUl9gJLCOjEvoSQNO8qDWw48vGQfdtArceeoKqKXHtWoOu7XVNviDtYv9tb8FhlwP9O3fy4I3ySVrLQ1SxGank/QcvvhePTMuG5XawGNwZZPxg7NGL5WlycdyAlGecSZCZ6Fz9W26r44SSREtmavC31SL7t2juN5p/iFFKWEfXYWnZUXtO1SIUKlmBH+KmrNq3q6BSwcExCQXxzfF4I4NJCE4ff60q+HmTTScrv+i+qfejJUKsKFUVmh44sL8IZcvBZIjsszGbHF0BE0gxnMdlL0pyHYFzns+N2t9E2KblZjFEuvxU27ycCaQPlBx5wkJytnlOBufauW6CKG8Q7jyPjUdgwhnExG7AQL3r7b6/LWFMd/FbyKiAlgo+19ha7fydxqZjxrVGx1ewpcnaya8Imna+wKue2bph/0coyCy5urFhR5EWQg+rfZPg5iidaDEAFfSx5Nd8Xa0MffqC5WHsakSFBlfxMU5IQehfS8mpFrGaJqfKdSIAOdb9yVY4r0iXV3er3nuUqZAHTeSV0sF6/3SuMt97SZxsb9+GK5g1PCoTXBKbOFfgWu9g4uD+clf9esdM6xseyNyRkJLMIL9oK8Tn9GYB/5qOg2pG/rVlkKWCj/YLwP5JY/ANtAaTpazZpIsQD2bsRrrAq8SidZF8a9jefpZ7pU1x/XpLm+rmF4O8D7fBXCjsYMAqIwT6urb7Ccy227yVyPFVNJRxQV0o27BFpuHkA7JQuLCcshf3M3YowjRQqj8L01aO1qaIIK90Zb6SSTUs0zphmbQxbcdm59g9B/115LedrnRUc94eoOkg1CWIVij4LdylAtZIFQYnO5t1iuhBFdI24uJrSxoV+bqbCyQFLrTr7vhe6TYt5CQvrg1mnE38cOTKeEnEyAwVL5HSelJjA+El+RMhQNDyGCQP7D1mbRxJIs2uDEbxaGatTVDiMqUJm7pQAllKQpf71Kj5GjuSVq42sLEpPLElQvhcNka5b6knHcHGQ2hYPr312dR9GLbI//rKEkBHSY5DT++/6Lc9pLhgR/BvyOtpczodfgnbLLYNRZMLFIiI35jeB69biSLI24zW4LQqpuRyYHbAnXQN2oD8ObZoxMst49uJONJeUA4C6XHsoxhHh6bMi6N1y4CExgwAYrOq2XETqy1hSZnt4h/81CgUhOWhOQFQfmJThh/b3QQzA7971hNJCuWiQTpsF/uIjp1QFWDgjKG3T4xIB20kPSY3HU1PI4aE1mrK17BaJxjIuDH5hfpjW1VHduC6mP8EOMxErTnaJnWPSeNSlUP+6XjxwNlpOB8edBgcKavterYEH+0umve4Zj8Yqnr9wnkFcFgd4LF2zyUmPJzzLj2eSmy7yEQ9UXwQ/eJGXWxxfKzFgzcrGIXXuj5ejvNnBno/g2xncXxroZw8+BCDHjL13Xxy534pGWWP3buRQfCj+Z5BwiUfxiQkgCu0AAwEVqX6QjbuC2xCO9Gix/b+hxMEuwhyPhbK61hRyd6ePWbb89KQoShMxLaQpRa0W9Y6Yn0N73UCLHxoeaKdjSzBoe9totGxin0dFIFvPsdz1nhlEO8oIXAG03iIHuSe/iUUxa8/+BpiR/PYVforqHMFKvHTsDQ1mR+6yJ2+/ulBbRdkpF3kXVHoyJQklRYcHmDB5pSStg0gPkngvkwkm4ycXkAAUbnlUwsTMI00a0ebue11msq6xSIU7dL19DxTy4ZlByopIb1qlaXwo4+OrTd5kTxZJ2UCCYVgZfxCfLku5OuxxYK1EsKx0G7A9SJuFMbNMamx87Ge5ASGtqWkUqbpQ3oh+KshrQXEM2mS2/HuLqjRqrtzmLeeFWRLCMO3yDatia2Bveu+xS+fFBPVukhjcVhH4eEBes3ViwjI6oihlLw+D47VEb5fQWG/ZsjCzuvOx5dT5N6rKiI0GtzeUjzX+JTjhCm37KWF2psgh0C8ifAgSxaC/Va5ocztsFA7bc8pittRRLpcKPeJhZRZmF1+PH+kGABneEmzwHPcfcgPH5ll4OpGOz5kA1Xb/BJ6/5t5s5JOk+OrOHrFZj1vrBnvtv0ymiY1mPhTpFvgNhUwvgUQlCJythcBSPJyMn//If1PuJ7Lv4UgMbS2/nnYGg6hWCTEQa74bYn9UOUoxC173GyLjcUeHce1PdNtBDMqpCRjrATZEPrxsIv7nBQjisoADPcf/cvrdX8979O74bngCtX1TZzVAACm+3UiTwg/78Qn8xTEooZvq9+gqGcqcw5UA7hubPmTQQzYCtHDxnjGC9d7t8QoJkro3kXQx5D35ultTC6le5CP/4iZgL9r+7K2izKqK+gzzx6VSQ1Yh1pwndBH1sj9wP/uG4bGD/QgUD8taEbWtbYhfqj+iHUTxCSSwXB+uuZJiCIelZFBSiKiU+tvMfUl/bA8X8AnigoKtCPto/uV+nwWVFxF1uD6rTe6Jj2QJqdBVlemd+iru+5Nv7jCj9i7as4MhFVrrrJ3MjqvJzCgwh+PwN42Sfc8wLRVM2eJJUpnicyQ0ZPTz3mky17nscG0xi8+cMzAOPR446MAIujt/ck745xIEc/VH/tr6jryw4Jev58gGT8Ha4n2q+GpdQmR2Sh2iFcCUe815+BZQhxE60WbRLjyVWq5Cm0Zolkk3SzxaYqSq6GAuDTloen5iLSiJXwGCF7Mws58LAvrmadXyYGaUCXNCSMPqa1n4XGvtyjQbOAzqZGjXPuZ+MdHIB17OMlQQVX56xA8YeOL6W9nwCp24yKW30+VU6bn2wG1tFnSk7k24QKxgx3h1suLMh9+xL5r0pBMGQ5A+pCFE0Ugp/UfAa/5ikDXo5Xior4LcTfTmqC0dlNvf955u9kv4Xuaw/DtLGYMlQ0fI2myLeJcxzPKIYHrq+4SzEGz4BojOMMktsUy1qF3mqG4/uuCxXu9yNXXW95+bi9bldJt9PjrA/+E3/ZBYJb2CmDb0NdC9cVZf+Ds3APFRfxh+LejVxuaxzY/0WXFFYf3mjBSb5tUS8GevktdgKX69Kk1pVGl/4ZSpdhHRO1R7fiK2Ss8xExrF+xTauAeEJ2ttW13yQ0QioXahknOjgAGP+HEZ6+7X5qoPECwwPi/YPVTqzT2rnwtboFWvsNl4kO/4jhD4U50zDRPakxnpzOmt/b5cL7FHXTfoseiPtQEfAXzejLfySzMf5t5uKFPUVhvkOjdT+UxlAGRC6QnBqq/HsYiTG38unITiSih9QDUROsiEmnnu35nWwA1trQGY4maXeyhH2wiHp3CAc1Q6tApd6wEl9VSVioExwTH3Kb4/WmpJMQAE/0nfeXPp8M7C7wGeEK+2HlEAHvSSIIeh1O5PP1P/BNtE5omq1jaEPHt27R5ikHcKS3f8wz+C1ErxFXovXuLEDcByRuLw2z75KrSTnG14j8RPcMbzgpQg3zMEYX/rlGrhvkCpUigqg8LMKUoxumBmYY52p17qEFqOJt6c5yRb+3I2ah6wcprTVcxFip4JpwvL43rvL+tvKB280bBFtbUunctWddkedRm55zrk95KuP9zvzmeUbNoJrPsj3cCGAVMAfqRre8U25EFDk+7oO1tqb9z0YVVFCXT5KKkK4K+Frx5LsVrj5ycE12sGwJfxHLJpPyKHL0fleho0WR/ht3Shne8HbBu7sp9TD4khka+u2GJ8kIUBXShvAOq4NHUCbhggLQg1Hg3eRjmTH/vPzJJLLakb2vvqF6Ra82dFszTWhyD/JWTxYUZUyyA20E5tYrgxbXDl/XeLD7+g2l2mfNWofO9WFrOn4UEsKgIq22MLXFVaY8XJjr+E4IUy/ATE9AawfepkQ+qe7h68/T2PnOJm3nf1RVNJWPlJsvY0LsUL2VhHyofeLYvXYbAUuSTgy5C1WUALDhACm8m4gV8IKrLDGMOsaSiE3e+Eb1Jg4K8Wu5Y21DoeInaVDam/WWP/sTegd0/2ucNVAfgEdm0Fzv6RsIN8MoY+hTXKaBNimv9uvzvM7uvfnjJj0JtHxuBMtCoWf8MLypGNb/EM1gkYvxeOg6ZDxkPEJuxgYBxWN9vpbun4wMKjTiEQfGD/nDmB2K76g4HY4eox90PhwJ2tsC9fNWAZOXwF70qVit12zBpKkU/l315VUzPvLTvTgxpLuUem8wze6+uonjNYOoU1orrddjuuwehhGpmBNXhFPdTAqzBLf8KHbDkGsSjWceKNFhuwqF+f4ZocSrZsXGSY545CCDY4LooqEZjxH1TN50nM8abA1rnrNN7+2kAMkZS2o3KBMRt3StoNifCIHUSJQkVFO6N72779t5SX2wXf8HYHmHL79XF7pSU/QeEXC3jX+GuZKA8ek5zpX5/IH7uCguSv8tpwJj27pHPOJfErp5/j7V4gV84PANkFHxykAmWrqceAxfp4eoQklSFNFGIjlLCPZOHDxyzhTWVx++Tv6e9vYlBxn4vZVrCqU1VnHdEogEx/++gpk39rmMJ1SQcr2nx24WeuiMZe2AVp+ejPQcpiDeHYQhdcotIVUMdByn1tZCP9SLBPPSJLKxF4CrH9Q2K7/fXRVe8bawhWQLorbd4W5kz2MGdyPV1RiGgKjYBzG2njIzLnTdKqD43+HEsaB/OXJKYzG9blCZ6IirpYLUmJ4xYdwvfxYBlqDFC97EiT98x5b5HNQ2kHJB6Qi7SZFe7lClwNyHThPPqtLlEtwdcYxuIdcNce28NdUTMER3V66WLApb8PXp17Sl4ps2vjcQ4sLQrVPCAnrVwyQqDe9ppbGp4vvluQ/02beC//gISECgPQs7lzfepNfNbwRO4+f9qFgv7h21KgrdqIBbIrNuipdn704+Zyw1cDCvyrFOdnTtT60ku6aacwNtxlyZBN9dXw3wOf+QMMWYeUtdGPGPrzvcZajyHgYSudgq5VTWZdpA8Qbd1ZiRJUrW3GhxnyrZhxsmHS07TJWQ0+/Ifzbh0+P+ZGYepQOzaj0thNaP6MMDrdZr3kw6Xqzm/b5RxSBxC+Wp+TYZlDe4XhIDcwLILcHpJlfXn7fELCKEU1xGKWFAQQr9wvrsGieML825BL4e7MdA80H7GqM6ZKZ4aPbG7F+UGy8Dw37bru+Z32j8z6f9+2SqWGsxIAsX15+jv/W54vnPMiUBEX/QycqHTVPWhd/YsYRRzeNGLsJxwnPSWzodS/43FLDDR5KqjxpBbqrrz4G/e4ZLFM+JhsovYHLZIIQHyBOMxtcnmf3//YPzj7JEuQtmN6Qp8bhRRSI+Qp1bsBzrTEIskCU3526fRaT34T3f5Fz6BH2g5kDJkmHPYDdYQuejOFfVtPj05HOeo51/87Qo+3BGas7lop6UZ5PWXDtStFRVp66N9RlWw1i7Mt9Xw51OJ68/ZXt6RgTKBzU22qaoWnPRkpp450L+kJ5+IjN44eIwIroMCzTqed6qUXuClFtjlZ8Gnp+kzyU7MckKqVmWS8QdAdRvJjDp65mnwCmd5vKOpGNLJB7YKO6To/Z14TsD+M0x+PxYhD5Gmop3YjVHgfAwRcV7LK8f+dx+WIcWocqaIMuSIIKxF9vXWPlH0QE/Qa4GseShwXr3s5vVHCjBQIZCeII7+3bLTR0EEBbIFl/uhYY9ijtpRG4U+7fHsxEd9seg6x9i/sdVTP/fQl/OEXP+kcw3TuROD6gxcA1aTssRnO8hMm5QaF+Ken0Ht2Nvd+ySMgmnMppZFv9dSOTiGNtmiN8QJ7vooSTE8wSDJJD/fvlDNFXpZ7JU+SZ2HSIVrdUQADvS+cStpVeOOXEO0ZrGQVJoBGCAZoIqXfgla0c8ySVu8c8vnnMB1PBsZm1SGiaoJ0o3nXK4pt0hhaADzMgpCLV7flwxjPsy1HwvFYeZtHk6Aa1vEWL4HgW/v1UvjJ5ma8THTWyTDxglhrg0Mo1b5XB+g9L2HkBRYAM41wocy20+gDko7yMCBH7vqzI/DDqXID2Fzi8hkKE78/oXXGLxuFkKKvuFLVyo6zO0j5QoE/X5k7+akBKAf/Dn7d36B/mzTV5HsiwJpUDTRABp+Rj4YWTL7fyImhqh0PVBBhZ2Go56oy3cocbGbrC7TMrHG4uwBbmhSsy3+g/06nBXNcPFCw1iuWI8gO6kj0oSY7xzTKdTasU2iD5WKw8opqsOzXHphhOAQTDqz0/keRR7e85zYpIA8e5mSTln/icleLzC8Bj29CIeDZKki6UTyXEKIPXrsB2/5kzBvlo+Gm8wezVS9aHkhVP4KEAXL56DQry0PMJ1LGHtRrPOieoJ60C3j5G776QkDFZnKs47S6wIp53xcaxn7+NI15qo6IKB2wS9FSZPXd8lOobG1kvtJOEDrZmALmCu25WBvpB2nj9WvIcDtzqUp/SFBvgZPjzMsZ4PXxfzudZSE1n0O2T8gufxLvHCf6KRWfWxr023e0ZY734w+L9sZgavd2Bz2yjF7fe5VMz3JmE6g7CZfw761meGjLe7NDa+cJqWcw/Sznsy2y9+0Ad2uQbpUufkMhK5VXGZR+t3nmj9jiQrf9OFo/2fKD2ssNjbAlT+Z5Ze7VXp6BMflV9OVNfgPAQ8YueOyN0sBEGDT88l8PgzC8C3gcWbNi7aO85dNcBuV4VsB7eoHhrDCrfrV/86w7cjjiW09iilbz3vIHVhaeIRSdsH+Cdkem4UobWzlVntnaJNrtMZWU/luQXn+i2jbo0RdrWjw85V4GE7PnOl9I6Azgkm7bcesf3kOK4xR7wN87ZtP6LwnOkdg1pKFf8RlnbRBgn98ssqtu6YqomA8YLek267RKd09hMb34ZmzZTPSrQ3kXE/UuSKLI62xE6FdNG9nxmVNU708wfMpTo7y0ZpROwmNa58QIjAFWxEHMH4Z+a9CD+fJREOer0LSne1oxRLG9S5bgEz2PL9yYZI45YvLmJILLJAZMD63zaXZ96fqjfT0ntODqE2AA7aiXDIbp/roCsYlJmvhiorzaJtrC/7PQ89Nad39d64DmeSjvjCvuHbXOMv5wm/hfIxZVXZetdoHMmTyONprUqHqTshMqhcc0P98GiORnAvFf0MdDWxHIT5EBIsT+Bd3EQxBj/KQ5cMqBmX1xVc0JbjXJhcoNLcstNJb5lmim/oxKUwLfVBABzG+U28O99dzUZCT/JQsFH2TzVVkRYtZQVANWjsUpsA8bT2MxVviGnapnfPYk1OBiwPLVwn441ZPG0axcaL7e4YURHDfIghdCI1X41qca/LcAbsGKTdtYnARbiWPJVTh5Q0XMpH/emHFniE8dXVD96RWy2PA/nUmeuTX6Ez88YPmK0Jn2JEubQoUbiEJ4enJldXLdplmHuh8bDhK3sxpn4RtMJRRIN9di3QWOLMyOlKwobyzXZeSacrBuX834DZAV8kPU+QaM/TJUkMFM7Tl5TVVWjKTzP2wM8mMOws09DKY8GV93cCZYeu4qTqWhFbC/Ardx8Xzop8uNlLrjQG/jP4mruN7bGk2AceqANZy/tQPR5EW51g7ngVWpeyd+CjHdLFQtbkzvCSdS7id3Rd/t2z7Lyc1rYtJ4db8e7zB1FWDPcrLWJTYGX1jtr/A8HYtw5Rvri8P42AmZpUQ2CaaxXAgaV/6S6EDJU2upzQq2G1OfQsc1uROKPbYEW/ENq3ctIyBPGFZAt4gj2Q5P/k2vs/VcXOegfBqEfN2k4HTokJub4r9kF3j607VqzitVr+DPQvGLCF1F7ToWZLoUo4Ma8gwwMcSFKB5Q2b+TNkdb7N0mlQ7CCSlwkZQ+cOuburS7lYzXfmHlk+Qza81MDp4JNev6Zx0xT45WvqjL3eLt9JoYpKO8KScR0JHj7aoREI2OqDubxmyXPMwz6iHrDix9HVtBi5zf4Kj4aPG7Phu+q5QyHZ+ouAO57bdBB5ukR23A3gWplDCEdLIYRqc0IEmmyYEfPd6IgWyhT83FUD+VAG0laQG9IgZ5NCz+eKEqOQMjetRQucp83Ro1P17MZl9KlNOAVhaAulvpEyQAGW68K/slHzx4OEpafJBKqTnOP2h/yGU0QXYl93V27tVqE5dHpYStB62UgZlQkF++VEiwOwJz8bmvk3qP5dCnc7uN64BXDmjoUimir90/Puj2QSjxh1jqPqRG+tQR6b19gL6bnWBONJK/gPdh6QcyH82U10DWwRk0+GS8zo8d++mjhbis9QfnImVtW3gT1khHK8p0/3F+A0Rt1eKqBjvmUIxJIMVSOgRv8T53Ny2lYqKjCW6N8BE0R1DsqZDqHVl8HWGgUeVSRxemkMVKDDLejE4D0YvMfdqjN53PagJw38eudgaEw6++QLYBypF3eqHr5Puhf9vY5Cf0q4tSXaR1/aH51yhGRcYNkie4pd7Wc/AY/9VgcdAq0oUHkB3vSpDyUZDb6GMAY1EwVwv8eS2sWXkK/ZJcqLQtPygMLnC7gTcpOJDe55rjnndlxDk6l1fisRbDsejUlHS65TNCd8Osdo+Dl02D9vxLoY0/cLWJpmHUATwGUFKsLUVHxmmdoQ37iM/bqa09ALU7rsbIEIS86JyxwvVSBeDb/pmQBSg5/QTJTxw/n9yDT25CjE12AgluKv+34+1pGLD//DVCA1+2JmUCBeK8L//cOHLszrp9c0p90/oiPGHasAXwtLMAhZY0fhLfsWmDX9Gd/vp0Xmg9UeHT8oPDJCfPdVZ+WRgnkxUiQhXHpS6A6S1BMnntPjH0uUJYYLD7rkDJ4g1T8+TawnUOIes9j51fThH6XpvKhC+jI/9LNPP/l0X2Bc/kLPKaSYlURIM96AObsLPL6RQ4Ji0yYi2FzIOTd9LhMjg+rnnUNRVqxNv3U+bo9YyKX6LQwvGW/c+q0xQFhCNg317qoiqYxx7z2daROGGJkmPpBmdvGzdXNY3Dese+IrOdEyPJuWKB03ateQOgnN2PygyZkFTDncWKeh5u38tx/zGXS0mS/f/RsG4yGuwCUBgBWXhKOwnhex6eaoMxuyUEZyZWpv26MKVZJ/nXnps4vcbf/utgezeiodHfTlsPoj8/np52fWoch0ASAi0nlMVcMshmVREqmpEsCTs811GvgHwhIa0GPBm00rvHjxt4nwIjxXP0vLk0DVsPdCjntpslhrh/+4DMr/PVHB5eIxOwML1QO3kIGlExvp28X5D5YMFoMHJJZAx7clboj7twBfAtXT0MZTyuF6FwaR5mft17iqNgwyUXo7tsRGDUiAzz4doVbKcIMvU6dzbeonFBSdzf5kYut+mhm5pNNfmRPQ6s3k/Sm0tuDOmNUJm5dLmd7XaBeBKX8wNJQck+xOaM+9N1NJCgqUiV6G+TgG/T4qjAGUs/Jk2ToKb8oNhMARUmo9XVXjBUEQ0bf95WpGBcd6BEw5g0ojn6/IANzhf6OT7QJCX5yrdbTEC3b2xgZkR0bbu1Q4wHjWaov/YRUJ+soR8D+rDVrESxofARwo1SlJrqASP09hdyO74uxaSSVbvtBb1N3FcgcWQ3476JXPfuNEvA6dR2v9hbNaElpC2q4kxlsnsFY0G9UX0A6ty3F+hGV4MSTFW8cvLXYXYFyVYayKL2SQBmVSZeVapuXwmXkWyCpKE93hC6+0m43rHZ+RLpvmMHjAk8wYOb9seZkK9L+k8ANTg3MjHHOnNTEpM36NBzaGyU8XScZpJOL/n1W1/ZAx/aoNLiHyNh4mbKUAIDSsZ4b3cQMTdf1g8k3vuEw6EyCCuVLXub6GlYl4snTykF0+fyJiPFAszlBrdmnjc2/z0zcGgW2mL03BaNZbwlGKPVSZu65LmmJofwuUpoVUN2mjOLeYGOzqeSv5y+TL74HuDKccjltLfO+ZQSZqPvODac8NO7nfGVP8/3MwA9LE+4Y695UVUWvKxiCmc8hnOYb2AtSHqx1MKFon3V8ZOc7PAlzxGxZL1pspUrfBCz4yaCuXrTnV7yZNVVDVl3WZUAyS/YPkuv5v3J/V8qznuNM5wfkr5q4YbSW4SJEpEoZtU/sX1pVFXqM+7xXiphPrKI0gjianfzRu+++ZXqI9VOJ3tMFc2rRo6XNf8dMN4xVVweV3WKiOL4ehyR0KLMABx6yz2Iw3fWIeax+iAp6mgG7H3BHk5m1IeOMCn2KZiXiImxhdXT4Qa8Tbemj/BHj8SWCoeXETXgnYCjBRwndI+fbMo9yAdXjuPp9OTe6QDeYaHHu1fIBz4vgkCHwVMD3inuq2QGsIrNZCj35oK795MR3avAXImMA3cqD+qvWQ9gPC8l8m8u62CSyx3fy5t9It0offXz1Iinm064bHRzeTNHdWbEan8Qcqcpx1x3gMvLepgAG1u01ilQP9a8InweFgB9fWXHpchYH9+tcaY+Ojg2k4eahvEty7AGvKdArK8mZJXFEJdLhhBd6cuw58iljazVAFEchVk7xjkXs3iKqj7LgeEzQbgwyS9zEa1rh7WFxF11+1jBkE4SX5/SqSrSeoaamX0DXVkzF4ocGKkb09ObXHr5WhzxBw4yvyuM5stzdRHNBHu0dnhHlKHh8IQQdWhJp0Vvd9G9XmAKsgZeC7COBjJ0lAxsv2GupEsx39i8XBFDL3sxirorG9363eFgS5/Nk8qqgWuZjnaP88ECfLGwZDkxf3fmah+PZMoqFfiHNjW5/G6roBxWzrRrl3DqlMF4ab/ApEL2YBmlxTGhc0mKcZaTT/ZuXm00ZqYtpvxkZIMrvudHUG0ugJJ8DgrNLKrH4yivjQpyolvaFfdIoUMQ+xtRi9cR7mXU0qGJcBFaT8hH2r9bh445ufTyabvWsgNdAYfTnIXYmDbmkn46+Um9sQlmXU1IYtpR547VUuGbz3CeIkrrZgwMrV4e13lX2ihWGu/sZ9hjffvcdZnXUu53+Xi9FfqutlOX3WBwPcm2ibTFr9EZu/YWn7aCXvjKvi0YIO2AehgjaHI0/Jco9XD7CR4IrC3fmWq/y6v7/27s+RU03ysYc/t+ibKYwNe3z8Rz9rVC/6RmP/uhvMXoGTitG3vDM7CK+TKBp3qDXz7ze65cxildNDhfcTdJ9PY1yitsbJSCZVCbkcbe7hyUTpNLBziy0RzhF1rjUeGZ2TemIZGzdBHrSHwKtPs0oRHQDRWPPXvCUimmEVzEocZ5d4mQ6hUT4wp81bjmS5RZqHsSGWt4ZX7eP8/toPTL60dnfvaPFDw4bmzlKeoPIxNaotch0LQ9/CsbuCapTKEvFfiGzrxCT/rYBNcpIgvMXDYBLe/cUxIWHJHm9q+PIfrmQ265J8naNqc+Tyl5uJFlMCSs60tHhc7ftX12O7gUapKvOlEEz+5vKAFugw6I0A6qyNisG24cHauhGxtO/1k0rLifS1SuD+nzAPJixPGMLcWVIqduRcEApA0QfI1mXRTL9QT7n/5EaGetSm6zLz3+q4fhZjn/j+gllXSHbWB+iUScq/INC13qiwsuOYDvVhitlC/hxuOMB50ybp7r6qpYpL8xukOfuP41l+3H7hBGGF0DmMpprGn+4i2JECqB1l59Llg84l4azLsFqWp/zYrv4qepIHo+19md1ADYfHCfF/CEgLYRQrlqqQWFJPUxhBLtpeGbkQ2n9YsmJmn3buqXKwOFcXdwP/kZFZv81VxFTsimYY3kx82YD9Z+LmMuP4isnHtZGuw/J/x/RSnQpo2qzCrkDyzQ2XXietigILYubYthtL/EbO7didv+yKlbiss9jzx6rBN1rHui4KNz9q2Q3Uea0ZkKNrAMrrWUOIa3zJYcjaxtWFH84uI/9oAr6jQBMkESJCngrIrTj11xcgKORAchCkoWm+PZ35D0B2KlYrM0rKckv+1ipl4iMdI9z6AuPnC3dJXggi2Lt0sp2FeQMf68xP71tT3n6qkbf4S9GJz9xzre54iHuvfLLIAT805lTTzbOgBll0OtY5+JqpdzpK7n4LXMufaxFoQjTsbcKk6DooON91GA+Zj/DsPEF1YXgLUaqEe1CVIBGwgKFwVfZwVtoV1M6pVE1J8EuTAIEoksJs92Sr1691dgOrF/lIRwi7w2PiKPgr/9PmaoaorVZqB/pig3UrFo3L0LxAyUA8z4kE/mAAm3XuolSvOUeXI0SZdkGYQguG/usCCq0CApwjgYtE+wkjHiVw4BkIbymytLxf04x0LUt45DqUP0dCP+75mLU7pe8TfmMXsLC7Uu4OBUbP2mAqN5xXUgzw1yPdq77Mi3Eluc26gaont7myf3YSVjDp+Rq2kFivp/nE8ySALrs1q6mSY0bUSgKrtKbQD5T0AefxuXf3YssMrhSLJUiowQHzkP6k8ZUDv6cPVG5VtUqwOVNn/3msyCsYJ6/2g1YXr4/xtM+Kw5vlstvUZNS/hDzkEeGY4Kjg65XlcIGSAmXEOelcxHNR5r7l1zcQP6v1X1v4ezZ+OGk+YFnNGNvk0dp8iGgxBTnEbGASWRJsq3CyC7Hk4ar+d2Ar1l+NwfChA6kyfXaWMnPU7eNKfsVafCDB3j10ELpGYeEaccDNd29EbRKPQCaAj+OZw1smCtoIlo6ljbf8rq4giG7ywD/dXnxat8tkm5dSDBrJ/vE0HBq1ETUKlBKEHhdcjv3iPDf6n6V89istXibH0UmUZ6/ekCZ7JXmpyaUR/amUzw0LL32z/U2Y0y1j2bp35xM0t5qoLjF7HssO3Bj/DhbSyhd53hr6wIMkgpb7LKTRIAcXlikL5sMypQ/T8bNvNT/qNL9KRTSv2sUMzuTM31oBMvx/hsJh7SVOKo9j95SMJiNzfTdAe/RHuocLoINyhwJ0iqtrik0xRXi6QXSl7GzHse+v1AvqA2IecWNYclMkZK91XBVg2IwAB8G5D2IDIu21cDlhT9j2lPxlFNvzTrjg248mrLYFWejZeS5GXqLG0/tQho6oJZYWZ0NQlwt5OhXJ1S7r7YKtk0Z/YAg9xHNo9kXs0oKubUjoDxGGMgWoXfM3WOOvqZhijdBvCIrWbwcdOod3hQQir2kJmm1JDFz6UUaQ+qB2Hlg/DsBL7GZpEBJSWeBgtcNtGx7jjvPvS1wR8PaCrA4nsHqlmyoqMXCbHrR0bF4SrsS11kvXwLQuQiT1uFDbNauKm765V+Tu0eqGXDdgR8lYTacX5o8Wqi5i2FzBbtwyYQbOSDABKnZPKnLculJ5Q+tzL2ufjO6+T1OfC0t1o0usZ8OHMZLdtZwnecRMYIwqENyvJxTAfO9vXZZsTSLMrVtXucRWYCdqkRsOVAE92+oHKYtIE7sY35A003DHobZwsCrQ8mHw9VFtOkAglXXw142sD4sHx1sc2jxjaHa9xFwo101hxWJPxxtT3n8TBNEhIQJVexRIBR1gFJz4w0JQ5H5IpPfL8jGaiFhKqQ/CMn6pxSDK+9p3gJE/bwmYlx54WlCPhSPfcHNpAEH6aZbXD1cOyuUsn8QpfuBya4f7CbcOJktQKmwRrtABoJSB4DipxP43Y6YX3m9eDcxPKcoXGrbX0RxWt14sarh+HlEzH0kq+WwL/e4cFeN/jvWMwG/3Zed6AFYP+WnPY6yl5uxWvqdbhhM+XLY1FSdLR3qPaq+Is/45k0Nd8Z/nVvIa5H6sESXf+TCGT6j9ElDcvODCRAsxRmrudbTzNopcHKN9Y3Vb20oXKEzvpW01guWWHSSr8mTO2+MTjxdlFnc0lf7rjEKcv0p98OCGJjIJ5xO4NUS/GwGccgegZMwbT+NU7gqEEIPYjVJw+OMq03FbyT0W+VlW/Mdq3Arp4IG/4PoaTUJAjP1FhkeK5fo8yyFaIlEbzwgcPI1osfD6cGvAk2UZm+B7c+S1G99Hyw7ooxcMj5T/xpfLkskoRuNSqRdy6PIpAIQayVRu17rLb4iWCB+idxWH6LKc6hVNaufjsscx34lT93UCOQDyum9sLF35h8EiUxGr67C1N53mcjLb9H9uOvCpUpyNT9EgPuHYEd4PoOEnQy72gXT9wQjlwsJg8kg9kAK6z3xPu437skT2aAAAPH+1IzgGguxylbdc0vIr4PUCY8d+yp8nOC2G6oTdwkh5fAANs+528H+7b0/G1M90IYc+uDurlZPAF2/fg8h5KgGud/hlsY3aozZ5Y/GZS1jffPcH07kWuA4BG47C+0Sl46zOByxWxJeP39v10K9evhNG+hSnKnSv4QqTTgEkAM4AAA==";
+
+/* ---------------------------------------------------------------------------
+ * ROSTER — 14 players, from Clint Followell's roster email of Aug 3, 2026.
+ * ---------------------------------------------------------------------------
+ * NAMES, NUMBERS AND GRADES ARE REAL as of Aug 3, 2026, but the numbers are
+ * TEMPORARY and subject to change — set TEAM.numbersProvisional to false once
+ * the coaching staff finalises them, and the "may change" notice disappears.
+ * Two players have no number yet ("" below) and two things are still missing
+ * everywhere: positions and player photographs.
+ *
+ * The roster page reconfigures itself around whatever data exists, so you only
+ * ever edit this list — the number search, the grade filter and the position
+ * filter each switch on by themselves once there is something to show.
+ *
+ * num      jersey number as a string ("7", "07", "42"); "" if not yet assigned
+ * first    first name          last     last name
+ * grade    9 | 10 | 11 | 12, or null if not yet confirmed
+ * offense  array of positions, e.g. ["Quarterback","End"]
+ * defense  array of positions, e.g. ["Linebacker"]
+ * special  special-teams role, or "" if none
+ * stats    array of {label, value} — only VERIFIED season stats
+ * awards   array of strings — only VERIFIED recognitions
+ * fact     one short, school-approved sentence, or ""
+ * photo    "" for the initials badge, or a filename like "photos/becker.jpg"
+ *
+ * Before publishing photos or personal facts, confirm the school's approval
+ * for each student. Do not add contact details, addresses, or schedules.
+ * ------------------------------------------------------------------------ */
+var ROSTER = [
+  { num:"50", first:"Caleb",    last:"Armstrong",  grade:10, offense:[], defense:[], special:"", stats:[], awards:[], fact:"", photo:"" },
+  { num:"13", first:"Jacob",    last:"Becker",    grade:12, offense:[], defense:[], special:"", stats:[], awards:[], fact:"", photo:"" },
+  { num:"80", first:"Jackson",  last:"Bishop",    grade:10, offense:[], defense:[], special:"", stats:[], awards:[], fact:"", photo:"" },
+  { num:"10", first:"Cooper",   last:"Clark",     grade:9,  offense:[], defense:[], special:"", stats:[], awards:[], fact:"", photo:"" },
+  { num:"12", first:"Cooper",   last:"Dailey",    grade:12, offense:[], defense:[], special:"", stats:[], awards:[], fact:"", photo:"" },
+  { num:"31", first:"David",    last:"Followell", grade:12, offense:[], defense:[], special:"", stats:[], awards:[], fact:"", photo:"" },
+  { num:"",   first:"Cash",     last:"Gilliad",   grade:12, offense:[], defense:[], special:"", stats:[], awards:[], fact:"", photo:"" },
+  { num:"8",  first:"Alex",     last:"Houston",   grade:11, offense:[], defense:[], special:"", stats:[], awards:[], fact:"", photo:"" },
+  { num:"5",  first:"Major",    last:"Howard",    grade:11, offense:[], defense:[], special:"", stats:[], awards:[], fact:"", photo:"" },
+  { num:"75", first:"Dominic",  last:"Knight",    grade:11, offense:[], defense:[], special:"", stats:[], awards:[], fact:"", photo:"" },
+  { num:"81", first:"Mason",    last:"Litt",      grade:11, offense:[], defense:[], special:"", stats:[], awards:[], fact:"", photo:"" },
+  { num:"6",  first:"Raine",    last:"Marsh",     grade:10, offense:[], defense:[], special:"", stats:[], awards:[], fact:"", photo:"" },
+  { num:"19", first:"Marshall", last:"Mehrens",   grade:11, offense:[], defense:[], special:"", stats:[], awards:[], fact:"", photo:"" },
+  { num:"40", first:"Valor",    last:"Menn",      grade:11, offense:[], defense:[], special:"", stats:[], awards:[], fact:"", photo:"" },
+  { num:"4",  first:"Cason",    last:"Nash",      grade:9,  offense:[], defense:[], special:"", stats:[], awards:[], fact:"", photo:"" },
+  { num:"33", first:"James",    last:"Southword", grade:9,  offense:[], defense:[], special:"", stats:[], awards:[], fact:"", photo:"" }
+];
+
+/* ---------------------------------------------------------------------------
+ * SCHEDULE — 2026-27 varsity schedule, from the official SMA schedule sheet.
+ * ---------------------------------------------------------------------------
+ * Dates, opponents and home/away are REAL and verified against the sheet.
+ * Every date falls on a Friday. Two items still need the school:
+ *   1. Kickoff times — the sheet lists none, so all show "TBA".
+ *   2. Ticket links — none published yet, so no ticket buttons appear.
+ * The footnote markers on the sheet resolve to: Giddings (*) = Senior Night,
+ * St Joseph (**) = Homecoming. Set "occasion" on any game to show a badge.
+ *
+ * date      "YYYY-MM-DD"          time  "7:30 PM"  (or "TBA")
+ * kind      "game" or "scrimmage"
+ * label     "Game 1" etc., shown as a small kicker; "" to hide
+ * home      true for home, false for away
+ * opponent  school name
+ * venue     stadium or campus name
+ * mapUrl    any map link, or ""
+ * ticketUrl official ticket page for this game, or ""
+ * status    "scheduled" | "final" | "canceled" | "postponed"
+ * smaScore / oppScore   numbers, only when status is "final"
+ * note      short free-text notice shown on the card, or ""
+ * ------------------------------------------------------------------------ */
+var SCHEDULE = [
+  { date:"2026-08-14", time:"TBA", kind:"scrimmage", label:"Scrimmage", home:false,
+    opponent:"Castle Hills", venue:"Castle Hills", mapUrl:"", ticketUrl:"",
+    status:"scheduled", smaScore:null, oppScore:null, note:"" },
+  { date:"2026-08-21", time:"TBA", kind:"scrimmage", label:"Scrimmage", home:true,
+    opponent:"Valor South", venue:"San Marcos Academy", mapUrl:"", ticketUrl:"",
+    status:"scheduled", smaScore:null, oppScore:null, note:"" },
+  { date:"2026-08-28", time:"TBA", kind:"game", label:"Game 1", home:true,
+    opponent:"Fredericksburg Heritage", venue:"San Marcos Academy", mapUrl:"", ticketUrl:"",
+    status:"scheduled", smaScore:null, oppScore:null, note:"" },
+  { date:"2026-09-04", time:"TBA", kind:"game", label:"Game 2", home:true,
+    opponent:"Lutheran HS", venue:"San Marcos Academy", mapUrl:"", ticketUrl:"",
+    status:"scheduled", smaScore:null, oppScore:null, note:"" },
+  { date:"2026-09-11", time:"TBA", kind:"game", label:"Game 3", home:false,
+    opponent:"Prairie Lea", venue:"Prairie Lea", mapUrl:"", ticketUrl:"",
+    status:"scheduled", smaScore:null, oppScore:null, note:"" },
+  { date:"2026-09-18", time:"TBA", kind:"game", label:"Game 4", home:true,
+    opponent:"Runge", venue:"San Marcos Academy", mapUrl:"", ticketUrl:"",
+    status:"scheduled", smaScore:null, oppScore:null, note:"" },
+  { date:"2026-09-25", time:"TBA", kind:"game", label:"Game 5", home:false,
+    opponent:"Allen Academy", venue:"Allen Academy", mapUrl:"", ticketUrl:"",
+    status:"scheduled", smaScore:null, oppScore:null, note:"" },
+  { date:"2026-10-02", time:"TBA", kind:"game", label:"Game 6", home:true,
+    opponent:"Giddings", venue:"San Marcos Academy", mapUrl:"", ticketUrl:"",
+    status:"scheduled", smaScore:null, oppScore:null, note:"", occasion:"Senior Night" },
+  { date:"2026-10-09", time:"TBA", kind:"game", label:"Game 7", home:true,
+    opponent:"St Joseph", venue:"San Marcos Academy", mapUrl:"", ticketUrl:"",
+    status:"scheduled", smaScore:null, oppScore:null, note:"", occasion:"Homecoming" },
+  { date:"2026-10-16", time:"TBA", kind:"game", label:"Game 8", home:false,
+    opponent:"Waco Valor", venue:"Waco Valor", mapUrl:"", ticketUrl:"",
+    status:"scheduled", smaScore:null, oppScore:null, note:"" },
+  { date:"2026-10-23", time:"TBA", kind:"game", label:"Game 9", home:false,
+    opponent:"Concordia", venue:"Concordia", mapUrl:"", ticketUrl:"",
+    status:"scheduled", smaScore:null, oppScore:null, note:"" },
+  { date:"2026-10-30", time:"TBA", kind:"game", label:"Game 10", home:false,
+    opponent:"Bracken", venue:"Bracken", mapUrl:"", ticketUrl:"",
+    status:"scheduled", smaScore:null, oppScore:null, note:"" }
+];
+
+/* Home games all share the campus venue and map link. */
+SCHEDULE.forEach(function(g){
+  if (g.home){
+    g.venue  = TEAM.homeVenue;
+    g.mapUrl = g.mapUrl || TEAM.homeMapUrl;
+  }
+});
+
+/* ---------------------------------------------------------------------------
+ * GLOSSARY — plain-language definitions. "sixman" adds a six-man-specific note.
+ * ------------------------------------------------------------------------ */
+var GLOSSARY = [
+  { term:"Audible", def:"When the offense changes the plan out loud at the line of scrimmage, right before the ball is snapped. That is what the shouting is.", sixman:"" },
+  { term:"Backfield", def:"The area behind the line of scrimmage, and the players standing there when the ball is snapped.", sixman:"No more than three players may be in the backfield when the ball is snapped." },
+  { term:"Blitz", def:"When defenders who normally hang back instead charge straight at the passer to tackle him before he can throw.", sixman:"With only six defenders, a blitz leaves someone uncovered — it is a genuine gamble." },
+  { term:"Center", def:"The player who starts each play by passing the ball backward between his legs to a teammate.", sixman:"The center is an eligible receiver here, so he can legally catch a pass. A forward pass to him must travel at least one yard." },
+  { term:"Clean exchange", def:"The six-man requirement that the player who catches the snap must hand off, pitch, or pass the ball to a teammate before anyone runs it past the line of scrimmage.", sixman:"This is the rule that surprises new spectators most. Breaking it costs 5 yards and the down." },
+  { term:"Conversion", def:"The extra scoring attempt right after a touchdown, also called the try or the extra point.", sixman:"A kicked conversion is worth 2 points. A run or pass conversion is worth 1 — the opposite of 11-man football." },
+  { term:"Down", def:"One play. The offense gets four downs to gain enough yards, then has to hand the ball over.", sixman:"" },
+  { term:"End zone", def:"The painted area at each end of the field. Getting the ball into the other team's end zone is a touchdown.", sixman:"Each end zone is 10 yards deep." },
+  { term:"First down", def:"A fresh set of four plays, earned by gaining the required yardage. The chains move and the count restarts at first down.", sixman:"You need 15 yards for a first down, not 10." },
+  { term:"Fumble", def:"When a player who is carrying the ball loses it before being tackled. Either team can recover it.", sixman:"On fourth down, after a legal exchange, a fumble is dead where it is recovered and cannot be advanced by a teammate." },
+  { term:"Handoff", def:"Physically placing the ball into a teammate's hands rather than throwing it.", sixman:"In six-man the ball may be handed in any direction behind the line — including forward." },
+  { term:"Interception", def:"When a defender catches a pass intended for the offense. Possession changes immediately.", sixman:"" },
+  { term:"Line of scrimmage", def:"The invisible line across the field where the ball sits at the start of a play. Both teams line up on their own side of it.", sixman:"" },
+  { term:"Mercy rule", def:"A rule that ends a lopsided game early.", sixman:"If a team leads by 45 or more points at the end of the first half — or reaches a 45-point lead at any point after — the game ends immediately." },
+  { term:"Motion", def:"An offensive player jogging sideways or backward before the snap, usually to confuse the defense or reveal how it is covering.", sixman:"A player on the line may not be moving when the ball is snapped, and no one may be moving toward the opponent's goal line." },
+  { term:"Neutral zone", def:"The narrow strip of field the length of the football itself, between the two teams, that nobody may enter before the snap.", sixman:"" },
+  { term:"Option", def:"A play where the ball carrier chooses in real time whether to keep the ball or pitch it to a teammate running beside him.", sixman:"Very common here, because the clean-exchange rule already requires the ball to change hands." },
+  { term:"Pass interference", def:"Illegally shoving, grabbing, or blocking a player who is trying to catch a pass.", sixman:"" },
+  { term:"Pocket", def:"The protected space the blockers try to keep clear around the passer so he has time to throw.", sixman:"The pocket collapses fast with only six players. That is one reason passers often run before throwing." },
+  { term:"Punt", def:"Kicking the ball away to the other team on fourth down, to make them start farther from your end zone.", sixman:"" },
+  { term:"Red zone", def:"The last 20 yards before the end zone, where scoring chances are best and defenses tighten up.", sixman:"" },
+  { term:"Safety", def:"Two things share this name. As a play, it is when the ball carrier is tackled in his own end zone — the other team gets 2 points and receives a kick. As a position, it is a defender who plays deepest.", sixman:"After a safety, the free kick is taken from the 20-yard line instead of the 30." },
+  { term:"Sack", def:"Tackling the passer behind the line of scrimmage before he gets the ball away.", sixman:"" },
+  { term:"Snap", def:"The backward pass between the center's legs that starts every play.", sixman:"Any of the six offensive players may receive the snap — but whoever does cannot run it past the line without an exchange." },
+  { term:"Special teams", def:"The group on the field for kicks: kickoffs, punts, field goals, and extra points.", sixman:"With six players, most of the special-teams unit is made up of starters who never leave the field." },
+  { term:"Tackle for loss", def:"A tackle made behind the line of scrimmage, so the offense ends up with fewer yards than it started with.", sixman:"Costly here — losing 3 yards when you need 15 is close to a lost down." },
+  { term:"Touchback", def:"When a kick goes into or through the end zone, and the receiving team simply starts from the 20-yard line instead of running it out.", sixman:"" },
+  { term:"Touchdown", def:"Getting the ball across the goal line into the opponent's end zone. Worth 6 points.", sixman:"" },
+  { term:"Turnover", def:"Losing the ball to the other team without punting or scoring — by interception or lost fumble.", sixman:"" },
+  { term:"Turnover on downs", def:"Failing to gain the needed yards in four downs, so the other team takes over right where the play ended.", sixman:"Happens often, because 15 yards in four plays is a real challenge." }
+];
+
+/* ============================================================================
+ * ==========================  END DATA BLOCK  ================================
+ * ========================================================================== */
+
+
+/* ---------------------------- small helpers ---------------------------- */
+function esc(s){
+  return String(s == null ? "" : s)
+    .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;").replace(/'/g,"&#39;");
+}
+function el(tag, cls, html){
+  var n = document.createElement(tag);
+  if (cls) n.className = cls;
+  if (html != null) n.innerHTML = html;
+  return n;
+}
+var MONTHS = ["January","February","March","April","May","June",
+              "July","August","September","October","November","December"];
+var DAYS = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+
+/* Parse "YYYY-MM-DD" as a LOCAL date (never UTC — avoids off-by-one-day bugs) */
+function localDate(ymd){
+  var p = String(ymd).split("-");
+  return new Date(+p[0], (+p[1]) - 1, +p[2]);
+}
+function longDate(ymd){
+  var d = localDate(ymd);
+  return DAYS[d.getDay()] + ", " + MONTHS[d.getMonth()] + " " + d.getDate();
+}
+function isPast(ymd){
+  var d = localDate(ymd);
+  var t = new Date(); t.setHours(0,0,0,0);
+  return d < t;
+}
+
+/* ------------------------------- header -------------------------------- */
+document.getElementById("hdrLogo").src  = LOGO;
+document.getElementById("heroLogo").src = LOGO;
+document.getElementById("hdrSchool").textContent = TEAM.school;
+document.getElementById("hdrSub").textContent    = TEAM.teamName;
+document.getElementById("ftSchool").textContent  = TEAM.school;
+document.getElementById("ftTeam").textContent    = TEAM.teamName;
+document.getElementById("ftUrl").textContent     = TEAM.shortUrl;
+document.getElementById("contactSlot").textContent = TEAM.contact;
+document.getElementById("seasonLede").textContent  =
+  "The full " + TEAM.season + " Bears six-man season. The next game is at the top.";
+
+/* ------------------------------- routing -------------------------------- */
+var ROUTES = {
+  "/":         { id:"page-home",     title:"San Marcos Academy Six-Man Football" },
+  "/rules":    { id:"page-rules",    title:"Six-Man in 60 Seconds" },
+  "/roster":   { id:"page-roster",   title:"Meet the Players" },
+  "/schedule": { id:"page-schedule", title:"Schedule & Tickets" },
+  "/what":     { id:"page-what",     title:"What Just Happened?" },
+  "/glossary": { id:"page-glossary", title:"Football Glossary" }
+};
+
+function route(){
+  var key = (location.hash || "#/").replace(/^#/, "");
+  if (!ROUTES[key]) key = "/";
+  var r = ROUTES[key];
+
+  var pages = document.querySelectorAll(".page");
+  for (var i = 0; i < pages.length; i++){
+    pages[i].classList.toggle("active", pages[i].id === r.id);
+  }
+
+  document.title = key === "/"
+    ? r.title
+    : r.title + " — " + TEAM.school + " Football";
+
+  document.getElementById("backBtn").classList.toggle("show", key !== "/");
+  window.scrollTo(0, 0);
+
+  // Move keyboard + screen-reader focus to the new page's heading.
+  var h = document.querySelector("#" + r.id + " h1");
+  if (h){ h.setAttribute("tabindex","-1"); h.focus({preventScroll:true}); }
+}
+window.addEventListener("hashchange", route);
+document.getElementById("backBtn").addEventListener("click", function(){
+  location.hash = "#/";
+});
+
+/* --------------------------- next game card ---------------------------- */
+function nextGame(){
+  for (var i = 0; i < SCHEDULE.length; i++){
+    var g = SCHEDULE[i];
+    if (g.status === "canceled") continue;
+    if (g.status === "final") continue;
+    if (!isPast(g.date)) return g;
+  }
+  return null;
+}
+
+function renderNextGame(){
+  var slot = document.getElementById("nextGameSlot");
+  var g = nextGame();
+  if (!g){
+    slot.innerHTML =
+      '<div class="card"><p style="margin:0"><b>The season is complete.</b> ' +
+      'See every result on the <a href="#/schedule">schedule page</a>.</p></div>';
+    return;
+  }
+  var scrim = g.kind === "scrimmage";
+  var when  = esc(longDate(g.date)) +
+              (g.time && g.time !== "TBA" ? ' &middot; ' + esc(g.time) : ' &middot; Time TBA');
+
+  var html =
+    '<div class="next">' +
+      '<p class="kicker">' + (scrim ? "Next up" : "Next game") + '</p>' +
+      '<p class="opp">' + (g.home ? "vs. " : "at ") + esc(g.opponent) + '</p>' +
+      '<p class="when">' + when +
+        '<br><span class="badge ' + (g.home ? "badge-home" : "badge-away") + '">' +
+          (g.home ? "HOME" : "AWAY") + '</span> ' +
+        (scrim ? '<span class="badge badge-final">SCRIMMAGE</span> ' : '') +
+        (g.occasion ? '<span class="badge badge-occ">' + esc(g.occasion.toUpperCase()) + '</span> ' : '') +
+        '&nbsp;' + esc(g.venue) +
+      '</p>';
+  if (g.note) html += '<p class="small"><b>Note:</b> ' + esc(g.note) + '</p>';
+
+  html += '<div class="btnrow">';
+  if (g.ticketUrl){
+    html += '<a class="btn btn-primary" href="' + esc(g.ticketUrl) + '" rel="noopener">Buy tickets</a>';
+  }
+  html += '<a class="btn btn-' + (g.ticketUrl ? "secondary" : "primary") + '" href="#/schedule">Full schedule</a>';
+  html += '</div></div>';
+  slot.innerHTML = html;
+}
+
+/* ----------------------------- schedule -------------------------------- */
+/* Builds a calendar file in the browser — no server, no network request. */
+function icsFor(g){
+  var d = localDate(g.date);
+  var start = new Date(d);
+  var m = /^(\d{1,2}):(\d{2})\s*(AM|PM)$/i.exec(String(g.time).trim());
+  if (m){
+    var hr = parseInt(m[1],10) % 12;
+    if (/pm/i.test(m[3])) hr += 12;
+    start.setHours(hr, parseInt(m[2],10), 0, 0);
+  } else {
+    start.setHours(19, 0, 0, 0);
+  }
+  var end = new Date(start.getTime() + 2.5*60*60*1000);
+  function fmt(x){
+    function p(n){ return (n<10?"0":"") + n; }
+    return x.getFullYear() + p(x.getMonth()+1) + p(x.getDate()) + "T" +
+           p(x.getHours()) + p(x.getMinutes()) + "00";
+  }
+  var tba = !g.time || g.time === "TBA";
+  var title = TEAM.school + " Football " + (g.home ? "vs. " : "at ") + g.opponent +
+              (g.kind === "scrimmage" ? " (scrimmage)" : "") +
+              (g.occasion ? " - " + g.occasion : "") +
+              (tba ? " — kickoff time TBA" : "");
+  return [
+    "BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//SMA Bears Football//EN","BEGIN:VEVENT",
+    "UID:" + g.date + "-" + g.opponent.replace(/\W/g,"") + "@smabears",
+    "DTSTAMP:" + fmt(new Date()),
+    "DTSTART:" + fmt(start),
+    "DTEND:" + fmt(end),
+    "SUMMARY:" + title,
+    "LOCATION:" + (g.venue || ""),
+    "END:VEVENT","END:VCALENDAR"
+  ].join("\r\n");
+}
+
+function renderSchedule(){
+  var wrap = document.getElementById("scheduleList");
+  wrap.innerHTML = "";
+  var next = nextGame();
+
+  if (!SCHEDULE.length){
+    wrap.appendChild(el("div","empty","The schedule has not been posted yet."));
+    return;
+  }
+
+  SCHEDULE.forEach(function(g, idx){
+    var card = el("div","game" + (g === next ? " isnext" : ""));
+    var h = "";
+
+    var kick = g === next
+      ? (g.kind === "scrimmage" ? "Next up" : "Next game")
+      : (g.label || "");
+    if (kick) h += '<p class="kicker">' + esc(kick) + '</p>';
+
+    h += '<h3>' + (g.home ? "vs. " : "at ") + esc(g.opponent) + '</h3>';
+    h += '<p class="meta">' + esc(longDate(g.date)) +
+         ' &middot; ' + (g.time && g.time !== "TBA" ? esc(g.time) : "Time TBA") +
+         '<br>' + esc(g.venue) + '</p>';
+
+    h += '<p style="margin:0 0 8px">';
+    h += '<span class="badge ' + (g.home ? "badge-home" : "badge-away") + '">' + (g.home ? "HOME" : "AWAY") + '</span> ';
+    if (g.kind === "scrimmage") h += '<span class="badge badge-final">SCRIMMAGE</span> ';
+    if (g.occasion) h += '<span class="badge badge-occ">' + esc(g.occasion.toUpperCase()) + '</span> ';
+    if (g.status === "final")     h += '<span class="badge badge-final">FINAL</span>';
+    if (g.status === "canceled")  h += '<span class="badge badge-off">CANCELED</span>';
+    if (g.status === "postponed") h += '<span class="badge badge-off">POSTPONED</span>';
+    h += '</p>';
+
+    if (g.status === "final" && g.smaScore != null){
+      var res = g.smaScore > g.oppScore ? "Bears win"
+              : g.smaScore < g.oppScore ? "Bears loss" : "Tie";
+      h += '<p class="score">' + res + ', ' + esc(g.smaScore) + '&ndash;' + esc(g.oppScore) + '</p>';
+    }
+    if (g.note) h += '<p class="small"><b>Note:</b> ' + esc(g.note) + '</p>';
+
+    h += '<div class="btnrow">';
+    if (g.status === "scheduled"){
+      if (g.ticketUrl){
+        h += '<a class="btn btn-primary" href="' + esc(g.ticketUrl) + '" rel="noopener">Buy tickets</a>';
+      }
+      h += '<button class="btn btn-secondary" type="button" data-ics="' + idx + '">Add to calendar</button>';
+    }
+    if (g.mapUrl) h += '<a class="btn btn-secondary" href="' + esc(g.mapUrl) + '" rel="noopener">Map &amp; directions</a>';
+    h += '</div>';
+
+    card.innerHTML = h;
+    wrap.appendChild(card);
+  });
+
+  if (TEAM.officialScheduleUrl){
+    wrap.appendChild(el("p","btnrow",
+      '<a class="btn btn-secondary" href="' + esc(TEAM.officialScheduleUrl) + '" rel="noopener">Official school schedule</a>'));
+  }
+
+  wrap.addEventListener("click", function(e){
+    var b = e.target.closest ? e.target.closest("[data-ics]") : null;
+    if (!b) return;
+    var g = SCHEDULE[+b.getAttribute("data-ics")];
+    var url = "data:text/calendar;charset=utf-8," + encodeURIComponent(icsFor(g));
+    var a = document.createElement("a");
+    a.href = url;
+    a.download = "sma-football-" + g.date + ".ics";
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  });
+}
+
+/* ------------------------------- roster -------------------------------- */
+function allPositions(){
+  var seen = {};
+  ROSTER.forEach(function(p){
+    (p.offense||[]).concat(p.defense||[]).forEach(function(x){ seen[x] = 1; });
+  });
+  return Object.keys(seen).sort();
+}
+function allGrades(){
+  var seen = {};
+  ROSTER.forEach(function(p){ if (p.grade) seen[p.grade] = 1; });
+  return Object.keys(seen).map(Number).sort(function(a,b){ return a-b; });
+}
+function initials(p){
+  return ((p.first||"?").charAt(0) + (p.last||"").charAt(0)).toUpperCase();
+}
+/* The roster page adapts to whatever data exists. Fill in numbers, grades or
+   positions in the DATA BLOCK and the matching control turns itself on. */
+function hasNumbers(){ return ROSTER.some(function(p){ return p.num !== "" && p.num != null; }); }
+function unnumbered(){ return ROSTER.filter(function(p){ return !p.num; }); }
+/* Spectators think in class names, not grade numbers. Show both. */
+var CLASS_OF = { 9:"Freshman", 10:"Sophomore", 11:"Junior", 12:"Senior" };
+function gradeLabel(g){ return CLASS_OF[g] ? g + " (" + CLASS_OF[g] + ")" : String(g); }
+function hasGrades(){  return allGrades().length > 0; }
+function hasPositions(){ return allPositions().length > 0; }
+
+function playerCard(p){
+  var name = (p.first || "") + " " + (p.last || "");
+  var h = '<div class="avatar" aria-hidden="true">';
+  h += p.photo
+    ? '<img src="' + esc(p.photo) + '" alt="">'
+    : esc(initials(p));
+  h += '</div><div>';
+
+  h += '<h3>' +
+       (p.num ? '<span class="jersey">#' + esc(p.num) + '</span>' : '') +
+       esc(name.trim()) + '</h3>';
+
+  h += '<ul class="rowlist">';
+  // Flag a blank only when the rest of the roster has that field filled in —
+  // otherwise every card repeats what the notice at the top already says.
+  if (!p.num && hasNumbers())   h += '<li class="pending">Jersey number not yet assigned</li>';
+  if (p.grade) h += '<li><span class="k">Grade:</span> ' + esc(gradeLabel(p.grade)) + '</li>';
+  else if (hasGrades())         h += '<li class="pending">Grade not yet confirmed</li>';
+  if ((p.offense||[]).length) h += '<li><span class="k">Offense:</span> ' + esc(p.offense.join(", ")) + '</li>';
+  if ((p.defense||[]).length) h += '<li><span class="k">Defense:</span> ' + esc(p.defense.join(", ")) + '</li>';
+  if (p.special)              h += '<li><span class="k">Special teams:</span> ' + esc(p.special) + '</li>';
+  h += '</ul>';
+
+  if ((p.stats||[]).length){
+    h += '<p style="margin:8px 0 0">';
+    p.stats.forEach(function(s){
+      h += '<span class="tag">' + esc(s.label) + ': ' + esc(s.value) + '</span>';
+    });
+    h += '</p>';
+  }
+  if ((p.awards||[]).length){
+    h += '<p style="margin:6px 0 0">';
+    p.awards.forEach(function(a){ h += '<span class="tag">' + esc(a) + '</span>'; });
+    h += '</p>';
+  }
+  if (p.fact) h += '<p class="quote">' + esc(p.fact) + '</p>';
+
+  h += '</div>';
+
+  var card = el("article","player", h);
+  // Never read out "Number , Gilliad" to a screen reader.
+  card.setAttribute("aria-label",
+    (p.num ? "Number " + p.num + ", " : "") + name.trim());
+  return card;
+}
+
+function filterRoster(){
+  var num   = document.getElementById("numQ").value.trim();
+  var name  = document.getElementById("nameQ").value.trim().toLowerCase();
+  var pos   = document.getElementById("posQ").value;
+  var grade = document.getElementById("gradeQ").value;
+
+  return ROSTER.filter(function(p){
+    if (num){
+      // "7" matches 7 and 07, but not 17 or 70.
+      if (!p.num) return false;
+      if (String(parseInt(p.num,10)) !== String(parseInt(num,10))) return false;
+    }
+    if (name){
+      var full = ((p.first||"") + " " + (p.last||"")).toLowerCase();
+      if (full.indexOf(name) === -1) return false;
+    }
+    if (pos){
+      var list = (p.offense||[]).concat(p.defense||[]);
+      if (list.indexOf(pos) === -1) return false;
+    }
+    if (grade && String(p.grade) !== String(grade)) return false;
+    return true;
+  }).sort(function(a,b){
+    // By jersey number once numbers exist; alphabetically by last name until then.
+    var an = a.num ? parseInt(a.num,10) : NaN, bn = b.num ? parseInt(b.num,10) : NaN;
+    if (!isNaN(an) && !isNaN(bn)) return an - bn;
+    if (!isNaN(an)) return -1;
+    if (!isNaN(bn)) return 1;
+    return (a.last + a.first).localeCompare(b.last + b.first);
+  });
+}
+
+function renderRoster(){
+  var list = document.getElementById("rosterList");
+  var count = document.getElementById("rosterCount");
+  var res = filterRoster();
+
+  list.innerHTML = "";
+  if (!ROSTER.length){
+    count.textContent = "";
+    list.appendChild(el("div","empty","The roster has not been posted yet."));
+    return;
+  }
+  if (!res.length){
+    count.textContent = "No players match.";
+    list.appendChild(el("div","empty",
+      "No player matches that search. Double-check the number, or clear the filters to see the whole roster."));
+    return;
+  }
+  count.textContent = res.length === ROSTER.length
+    ? res.length + " players on the roster"
+    : "Showing " + res.length + " of " + ROSTER.length + " players";
+  res.forEach(function(p){ list.appendChild(playerCard(p)); });
+}
+
+/* Show only the controls the current data can actually support. */
+function tuneRosterUI(){
+  var nums = hasNumbers(), pos = hasPositions(), gr = hasGrades();
+
+  document.getElementById("numField").style.display   = nums ? "" : "none";
+  document.getElementById("posField").style.display   = pos  ? "" : "none";
+  document.getElementById("gradeField").style.display = gr   ? "" : "none";
+  document.getElementById("filterRow").style.display  = (pos || gr) ? "" : "none";
+  if (pos && !gr) document.getElementById("filterRow").style.gridTemplateColumns = "1fr";
+  if (gr && !pos) document.getElementById("filterRow").style.gridTemplateColumns = "1fr";
+
+  document.getElementById("rosterLede").textContent = nums
+    ? "Saw a great play and want to know who made it? Start with the number on the jersey."
+    : "The " + TEAM.season + " Bears roster. Jersey numbers are still being assigned.";
+
+  document.getElementById("nameLabel").textContent = nums
+    ? "Or search by name" : "Search by name";
+
+  document.getElementById("rosterWhy").textContent = nums
+    ? "Who is number 7? Search by number or name"
+    : "All " + ROSTER.length + " Bears — search by name";
+
+  // Three states: no numbers at all, numbers that may still change, numbers final.
+  var missing = unnumbered().length, msg = "";
+  if (!nums){
+    msg = '<b>Jersey numbers have not been assigned yet.</b> ' +
+          'Once the coaching staff sets them, the “Who is number…?” search will ' +
+          'appear right here and every player card will show a number.';
+  } else if (TEAM.numbersProvisional){
+    msg = '<b>Jersey numbers are temporary and may still change.</b> ' +
+          'If a number on the field does not match this page, trust the jersey.';
+    if (missing) msg += ' ' + (missing === 1 ? 'One player has' : missing + ' players have') +
+                        ' not been assigned a number yet.';
+  } else if (missing){
+    msg = (missing === 1 ? 'One player has' : missing + ' players have') +
+          ' not been assigned a jersey number yet.';
+  }
+  if (msg && !ROSTER.some(function(p){ return p.photo; })){
+    msg += ' Player photographs are still to come.';
+  }
+  document.getElementById("rosterNotice").innerHTML = msg ? '<p class="note">' + msg + '</p>' : "";
+}
+
+function initRoster(){
+  tuneRosterUI();
+  var posSel = document.getElementById("posQ");
+  allPositions().forEach(function(x){
+    var o = document.createElement("option"); o.value = x; o.textContent = x; posSel.appendChild(o);
+  });
+  var gSel = document.getElementById("gradeQ");
+  allGrades().forEach(function(g){
+    var o = document.createElement("option"); o.value = g;
+    o.textContent = CLASS_OF[g] ? CLASS_OF[g] + "s (grade " + g + ")" : "Grade " + g;
+    gSel.appendChild(o);
+  });
+
+  ["numQ","nameQ","posQ","gradeQ"].forEach(function(id){
+    var n = document.getElementById(id);
+    n.addEventListener("input", renderRoster);
+    n.addEventListener("change", renderRoster);
+  });
+  document.getElementById("clearRoster").addEventListener("click", function(){
+    ["numQ","nameQ","posQ","gradeQ"].forEach(function(id){
+      document.getElementById(id).value = "";
+    });
+    renderRoster();
+    document.getElementById(hasNumbers() ? "numQ" : "nameQ").focus();
+  });
+  renderRoster();
+}
+
+/* ------------------------------ glossary ------------------------------- */
+function renderGlossary(){
+  var q = document.getElementById("glossQ").value.trim().toLowerCase();
+  var wrap = document.getElementById("glossList");
+  var count = document.getElementById("glossCount");
+
+  var res = GLOSSARY.filter(function(t){
+    if (!q) return true;
+    return (t.term + " " + t.def + " " + (t.sixman||"")).toLowerCase().indexOf(q) !== -1;
+  }).sort(function(a,b){ return a.term.localeCompare(b.term); });
+
+  wrap.innerHTML = "";
+  if (!res.length){
+    count.textContent = "No matches.";
+    wrap.appendChild(el("div","empty",
+      "No term matches that. Try a shorter word, or ask someone nearby — nobody minds the question."));
+    return;
+  }
+  count.textContent = q ? res.length + " matching terms" : res.length + " terms";
+
+  res.forEach(function(t){
+    var h = '<h3>' + esc(t.term) + '</h3><p>' + esc(t.def) + '</p>';
+    if (t.sixman) h += '<span class="sixman"><b>In six-man:</b> ' + esc(t.sixman) + '</span>';
+    wrap.appendChild(el("div","term",h));
+  });
+}
+
+/* -------------------------------- boot --------------------------------- */
+renderNextGame();
+renderSchedule();
+initRoster();
+document.getElementById("glossQ").addEventListener("input", renderGlossary);
+renderGlossary();
+route();
+</script>
+</body>
+</html>
