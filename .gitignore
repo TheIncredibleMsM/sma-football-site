@@ -14,3 +14,6 @@ npm-debug.log*
 .vscode/
 .idea/
 coverage/
+
+# build artifact — rebuilt on demand for Cloudflare uploads
+*.zip
